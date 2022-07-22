@@ -2,6 +2,7 @@ import React from 'react';
 import './App.css';
 import Game from './game/game';
 
+
 function App() {
   return (
     <div className="App">

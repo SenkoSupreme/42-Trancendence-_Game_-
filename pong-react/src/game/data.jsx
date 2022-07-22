@@ -21,9 +21,10 @@ export default {
     level: 1,
   },
   paddleProps: {
-    height: 20,
-    width: 100,
-    x: 100,
-    image: "https://raw.githubusercontent.com/SenkoSupreme/ft_transcendence_Angular_Pong/main/pong-angular/src/assets/sprite/Doom64.png",
+    height: 100,
+    width: 20,
+    y: 0,
+    x: 0,
+    colour: "White",
   },
 };
