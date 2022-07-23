@@ -12,7 +12,7 @@ const players = {};
 @WebSocketGateway({ cors: true })
 export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
-  server;
+  server: any;
   @SubscribeMessage('message')
   handleMessage(@MessageBody() data: string): void {
     //this.server.emit('message', 'SENKO CHAT TEST');
@@ -22,14 +22,20 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
     console.log(`${data.x} -- ${data.y}`);
     players[client.id] = data;
     console.log('number of players:' + Object.keys(players).length);
+    console.log(players);
+    if (Object.keys(players).length == 2) {
+      players[client.id].x = 1260;
+      this.server.emit('Newpaddle', players[client.id]);
+    }
   }
 
   handleConnection(client: Socket) {
     console.log(`Client connected + ${client.id}`);
   }
 
-  handleDisconnect() {
+  handleDisconnect(client: Socket) {
     console.log('Client disconnected');
-   //players[].destroy();
+    delete players[client.id];
+    console.log('number of players:' + Object.keys(players).length);
   }
 }

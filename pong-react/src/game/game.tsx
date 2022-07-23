@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { ballMovement } from "./ballMovement";
 import './game.css';
 import data from './data';
@@ -32,15 +32,24 @@ function Game () {
             wallCollision(ballObj, ball);
         };
 
+        const renderPaddleRight = () => {
+            const SecondpaddleC = canvasRef.current;
+            const ctx_2 = SecondpaddleC?.getContext('2d');
+            paddle(ctx_2, SecondpaddleC, paddleProps, 1);
+            console.log("2nd player");
+        }
+
         const renderPaddle = () => {
             const paddleC = canvasRef.current;
             const ctx = paddleC?.getContext('2d');
-            var pdd = new Image();
-            pdd.src = paddleProps.colour;
-            paddle(ctx, paddleC, paddleProps);
+            paddle(ctx, paddleC, paddleProps, 0);
+            renderPaddleRight();
 
+            // socket.on('Newpaddle', (data) => {
+                
+            //     }
+            // );
         }
-       
        
         const render = () => {
             renderCanvas();
@@ -52,7 +61,7 @@ function Game () {
         canvasRef.current?.focus();
         
         
-
+        
         function multiplayer() {
             socket.emit('update', {x: paddleProps.x, y: paddleProps.y});
         }
@@ -74,7 +83,7 @@ function Game () {
         <canvas id="game" ref={canvasRef}
         tabIndex={0}
         onKeyDown={keyboardevent}
-        width="800" height="500"></canvas>
+        width="1280" height="720"></canvas>
         );
 }
 export default Game;

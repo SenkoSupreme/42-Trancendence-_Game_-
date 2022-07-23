@@ -1,4 +1,4 @@
-export default  (ctx:any, paddleC: any, paddleProps:any) => {
+export default  (ctx:any, paddleC: any, paddleProps:any, isright: number) => {
 
     class Paddle {
         x:number;
@@ -17,15 +17,31 @@ export default  (ctx:any, paddleC: any, paddleProps:any) => {
 
     move() {
         ctx.beginPath();
-        ctx.rect(0, this.y, this.width, this.height);
+        ctx.rect(this.x, this.y, this.width, this.height);
         ctx.fillStyle =  "white" ;
         ctx.strokeStyle =  "Yellow";
         ctx.lineWidth = 1;
         ctx.fillStyle = "white";
         ctx.shadowBlur = 0;
         ctx.shadowColor = "blue";
-        ctx.strokeRect(0, this.y, this.width, this.height);
+        ctx.strokeRect(this.x, this.y, this.width, this.height);
         ctx.fill();
+        ctx.closePath();
+        if (isright === 1)
+        {
+            this.x = paddleC.width - paddleProps.width;
+            //console.log(this.x);
+            ctx.beginPath();
+            ctx.rect(this.x, this.y, this.width, this.height);
+            ctx.fillStyle =  "red" ;
+            ctx.strokeStyle =  "Yellow";
+            ctx.lineWidth = 1;
+            ctx.fillStyle = "red";
+            ctx.shadowBlur = 0;
+            ctx.shadowColor = "blue";
+            ctx.strokeRect(this.x, this.y, this.width, this.height);
+            ctx.fill();
+        }
       }
 
     }
