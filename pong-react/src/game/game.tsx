@@ -5,6 +5,7 @@ import data from './data';
 import wallCollision from "./wallCollision";
 import paddle from "./paddle";
 import io, { Socket } from 'socket.io-client';
+import paddleHit from "./paddleCollision";
 
 let {ballObj, paddleProps} = data;
 const socket = io('http://localhost:3001');
@@ -31,17 +32,16 @@ function Game () {
             ballMovement(ctx, ballObj);
             wallCollision(ballObj, ball);
         };
-
+        
         const renderPaddleRight = () => {
             const SecondpaddleC = canvasRef.current;
             const ctx_2 = SecondpaddleC?.getContext('2d');
             paddle(ctx_2, SecondpaddleC, paddleProps, 1);
-            console.log("2nd player");
         }
-
         const renderPaddle = () => {
             const paddleC = canvasRef.current;
             const ctx = paddleC?.getContext('2d');
+            paddleHit(ballObj, paddleProps, canvasRef.current);
             paddle(ctx, paddleC, paddleProps, 0);
             renderPaddleRight();
 
@@ -53,8 +53,8 @@ function Game () {
        
         const render = () => {
             renderCanvas();
-            renderBall();
             renderPaddle();
+            renderBall();
             requestAnimationFrame(render);
         };
         

@@ -18,10 +18,9 @@ export default  (ctx:any, paddleC: any, paddleProps:any, isright: number) => {
     move() {
         ctx.beginPath();
         ctx.rect(this.x, this.y, this.width, this.height);
-        ctx.fillStyle =  "white" ;
+        ctx.fillStyle =  "#F9E076" ;
         ctx.strokeStyle =  "Yellow";
         ctx.lineWidth = 1;
-        ctx.fillStyle = "white";
         ctx.shadowBlur = 0;
         ctx.shadowColor = "blue";
         ctx.strokeRect(this.x, this.y, this.width, this.height);
@@ -33,10 +32,9 @@ export default  (ctx:any, paddleC: any, paddleProps:any, isright: number) => {
             //console.log(this.x);
             ctx.beginPath();
             ctx.rect(this.x, this.y, this.width, this.height);
-            ctx.fillStyle =  "red" ;
-            ctx.strokeStyle =  "Yellow";
+            ctx.fillStyle =  "#9e2626" ;
+            ctx.strokeStyle =  "white";
             ctx.lineWidth = 1;
-            ctx.fillStyle = "red";
             ctx.shadowBlur = 0;
             ctx.shadowColor = "blue";
             ctx.strokeRect(this.x, this.y, this.width, this.height);
