@@ -3,8 +3,8 @@ function paddleHit(ballObj: any, paddleProps: any, paddleC: any) {
     if 
     (  
         ballObj.x  < paddleProps.width  && ballObj.y > paddleProps.y &&
-        paddleProps.x < paddleProps.x + paddleProps.width 
-        //ballObj.y + ballObj.rad > paddleProps.y - paddleProps.height / 2 
+        paddleProps.x < paddleProps.x + paddleProps.width &&
+        ballObj.y + ballObj.rad > paddleProps.y - paddleProps.height / 2 
         
         //ballObj.y + ballObj.rad > paddleProps.y - paddleProps.height / 2
         // ballObj.y < paddleProps.y + paddleProps.height &&

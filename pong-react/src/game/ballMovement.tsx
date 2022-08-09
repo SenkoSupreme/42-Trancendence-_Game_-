@@ -2,8 +2,8 @@ export function ballMovement(ctx:any, ballObj:any)
 {
     let data = new Ball(ballObj.x, ballObj.y, ballObj.rad);
     data.draw(ctx);
-    ballObj.x += ballObj.dx;
     ballObj.y += ballObj.dy;
+    ballObj.x += ballObj.dx;
 }
 
 class Ball {
@@ -20,7 +20,8 @@ class Ball {
     draw(ctx:CanvasRenderingContext2D)
     {
         ctx!.beginPath();
-        ctx!.arc(this.x, this.y, this.rad, 0, Math.PI * 2);
+        ctx!.arc(this.x, this.y, this.rad, 0, Math.PI * -
+        2);
         ctx!.fillStyle = "white";
         ctx!.strokeStyle = "black";
         ctx!.lineWidth = 2;

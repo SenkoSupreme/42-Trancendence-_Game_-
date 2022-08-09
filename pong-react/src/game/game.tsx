@@ -4,7 +4,7 @@ import './game.css';
 import data from './data';
 import wallCollision from "./wallCollision";
 import paddle from "./paddle";
-import io, { Socket } from 'socket.io-client';
+import io from 'socket.io-client';
 import paddleHit from "./paddleCollision";
 
 let {ballObj, paddleProps} = data;
@@ -18,12 +18,12 @@ function Game () {
         const renderCanvas = () => {
             const gameCanvas = canvasRef.current;
             const ctx = gameCanvas?.getContext('2d');
-            //ctx?.clearRect(0, 0, gameCanvas!.width, gameCanvas!.height);
             var image  = new Image();
             image.src = 'splash_art01.png';
             image.onload = function() {
                 ctx!.drawImage(image, 0, 0, gameCanvas!.width, gameCanvas!.height);
             }
+            //ctx?.clearRect(0, 0, gameCanvas!.width, gameCanvas!.height);
         };
        
         const renderBall = () => {
