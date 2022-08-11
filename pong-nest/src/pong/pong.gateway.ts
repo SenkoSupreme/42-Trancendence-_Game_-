@@ -1,4 +1,5 @@
 import {
+  ConnectedSocket,
   MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
@@ -17,17 +18,6 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
   handleMessage(@MessageBody() data: string): void {
     //this.server.emit('message', 'SENKO CHAT TEST');
   }
-  @SubscribeMessage('update')
-  handleUpdate(client: Socket, data: any) {
-    console.log(`${data.x} -- ${data.y}`);
-    players[client.id] = data;
-    console.log('number of players:' + Object.keys(players).length);
-    console.log(players);
-    if (Object.keys(players).length == 2) {
-      players[client.id].x = 1260;
-      this.server.emit('Newpaddle', players[client.id]);
-    }
-  }
 
   handleConnection(client: Socket) {
     console.log(`Client connected + ${client.id}`);
@@ -38,4 +28,30 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
     delete players[client.id];
     console.log('number of players:' + Object.keys(players).length);
   }
+  //JOIN GAME HANDLER
+  @SubscribeMessage('join_game')
+  public async joinGame(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: any) {
+
+    const ConnectedSockets = this.server.sockets.adapter.rooms.get(data.room);
+    const socketRooms = Array.from(socket.rooms.values()).filter(
+      (r) => r !== socket.id);
+
+    await socket.join(data.room);
+    socket.to(data.room).emit('joined_game', data);
+    console.log(`${data.room} joined`);
+  }
+
+  //NEW PLAYER HANDLER
+  @SubscribeMessage('update')
+  handleNewPlayer(client: Socket, data: any) {
+    players[client.id] = data;
+    console.log('number of players:' + Object.keys(players).length);
+    if (Object.keys(players).length == 2) {
+      this.server.emit('renderNewPaddle');
+    }
+
+  }
 }
+

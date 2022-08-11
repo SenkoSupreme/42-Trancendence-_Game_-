@@ -1,4 +1,4 @@
-export default  (ctx:any, paddleC: any, paddleProps:any, isright: number) => {
+export default (ctx:any, paddleC: any, paddleProps:any, isright: number) => {
 
     class Paddle {
         x:number;
