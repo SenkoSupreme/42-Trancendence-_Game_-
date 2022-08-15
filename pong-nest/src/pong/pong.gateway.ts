@@ -7,13 +7,13 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
-import { Socket } from 'socket.io';
+import { Socket, Server } from 'socket.io';
 
 const players = {};
 @WebSocketGateway({ cors: true })
 export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
-  server: any;
+  server: Server;
   @SubscribeMessage('message')
   handleMessage(@MessageBody() data: string): void {
     //this.server.emit('message', 'SENKO CHAT TEST');
@@ -26,6 +26,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
   handleDisconnect(client: Socket) {
     console.log('Client disconnected');
     delete players[client.id];
+    this.server.emit('PlayerDisconnected');
     console.log('number of players:' + Object.keys(players).length);
   }
   //JOIN GAME HANDLER
@@ -51,7 +52,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (Object.keys(players).length == 2) {
       this.server.emit('renderNewPaddle');
     }
-
+    console.log(players);
+    this.server.sockets.emit('player_update', players[client.id]);
   }
 }
-
