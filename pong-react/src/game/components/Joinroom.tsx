@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import styled from "styled-components";
+import io, { Socket } from 'socket.io-client';
 
+const socket = io('10.12.10.3:3001'); //update this to mac pubic ip
 
 const JoinRoomcontainer = styled.div`
     width: 100%;
@@ -37,8 +39,9 @@ const JoinRoomButton = styled.button`
 
     &:hover {
         background-color: trasparent;
-        color: #8e44ad;
+        color: red;
         border: 2px solid #8e44ad;
+        
     }
 
 `;
@@ -52,6 +55,9 @@ export function JoinRoom(props: any) {
         console.log(roomID);
         
     }
+    const sendRoomID = () => {
+    socket.emit('join_game', roomID);
+    }
 
     return (
          <form>
@@ -62,7 +68,10 @@ export function JoinRoom(props: any) {
                 value={roomID} 
                 onChange={handleRoomIDChange}
                 />
-                <JoinRoomButton>Join</JoinRoomButton>
+                <JoinRoomButton
+                type="button"
+                onClick={sendRoomID}
+                >Join</JoinRoomButton>
             </ JoinRoomcontainer>
          </form>
     );

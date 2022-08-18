@@ -5,17 +5,19 @@ import paddle from "./paddle";
 import data from "./data";
 import { JoinRoom } from "./components/Joinroom";
 
-const socket = io('http://localhost:3001');
-let {LeftpaddleProps, RightpaddleProps} = data;
+const socket = io('10.12.10.3:3001'); //update this to mac pubic ip
+let {paddleProps} = data;
 
 function Game () {    
     const canvasRef = useRef<HTMLCanvasElement>(null);
     let keypress: boolean = true;
+    let newPlayer: boolean = false;
+    let rightPaddle: any = {};
+    let leftPaddle: any = paddleProps;
+    let aPaddle: any = {};
+
     
     useEffect(() => {
-        
-        
-        let newPlayer: boolean = false;
         const renderCanvas = () => {
             const canvasBG = canvasRef.current;
             const ctxBG = canvasBG?.getContext('2d');
@@ -26,40 +28,48 @@ function Game () {
                 ctxBG?.drawImage(bg, 0, 0, canvasBG!.width, canvasBG!.height);
             }
         }
-        socket.on('player_update', data => {
-            LeftpaddleProps = data;
-        })
-        socket.on('renderNewPaddle', () => 
+        
+        socket.on('Second_Player', data => 
         {
             console.log('player2 in');
             newPlayer = true;
+            rightPaddle = data;
+            
         });
+
+        socket.on('player1_update', data => {
+            leftPaddle = data;
+        })
+        socket.on('player2_update', data => {
+            rightPaddle = data;
+        })
         socket.on('PlayerDisconnected', () =>
         {
             console.log('player2 out');
             newPlayer = false;
+
         });
 
         console.log(`is New : ${newPlayer}`);
         const renderPaddle = () => {
             const paddleC = canvasRef.current;
             const ctx = paddleC?.getContext('2d');
-            paddle(ctx, paddleC, LeftpaddleProps, 0);
+            paddle(ctx, paddleC, leftPaddle);
             if (newPlayer)
             {
-                paddle(ctx, paddleC, RightpaddleProps, 1);
+                paddle(ctx, paddleC, rightPaddle);
             }
         }
         
         const render = () => {
             renderCanvas();
             renderPaddle();
-            if(keypress) {
-                api_updates();
-            }
             requestAnimationFrame(render);
         };
         canvasRef.current?.focus();
+        if(keypress) {
+            api_updates();
+        }
         render();
         
     }, []);
@@ -67,17 +77,17 @@ function Game () {
     
     const keyboardevent = (e: React.KeyboardEvent<HTMLCanvasElement>) => {
         if (e.key === "ArrowUp") {
-            LeftpaddleProps.y -= 50;
+            socket.emit('arrow_keyUP');
             keypress = true;
         } 
         else if (e.key === "ArrowDown") {
-            LeftpaddleProps.y += 50;
+            socket.emit('arrow_keyDown');
             keypress = true;
         }
     }
     function api_updates()
     {
-        socket.emit('update',LeftpaddleProps);
+        socket.emit('update',leftPaddle);
         keypress = false;
     }
     return (
@@ -86,7 +96,6 @@ function Game () {
             <canvas id="game" ref={canvasRef}
             tabIndex={0}
             onKeyDown={keyboardevent}
-            // onLoad={() => {setNewPlayer(newPlayer + 1)}}
             width="1280" height="720"></canvas>
         </>
             );

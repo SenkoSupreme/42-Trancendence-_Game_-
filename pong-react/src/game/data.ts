@@ -9,7 +9,8 @@ export default {
       speed: 10,
     },
   
-    LeftpaddleProps: {
+   paddleProps: {
+      side : 'left',
       height: 100,
       width: 12,
       y: 0,
@@ -17,11 +18,12 @@ export default {
       colour: "#F9E076",
     },
 
-    RightpaddleProps: {
-      height: 100,
-      width: 12,
-      y: 0,
-      x: 1268,
-      colour: "#F9E076",
-    },
+    // RightpaddleProps: {
+    //   player: 'right',
+    //   height: 100,
+    //   width: 12,
+    //   y: 0,
+    //   x: 1268,
+    //   colour: "#F9E076",
+    // },
   };
