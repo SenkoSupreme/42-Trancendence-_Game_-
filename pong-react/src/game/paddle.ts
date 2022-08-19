@@ -1,3 +1,4 @@
+// eslint-disable-next-line import/no-anonymous-default-export
 export default (ctx:any, paddleC: any, paddleProps:any) => {
 
     class Paddle {
