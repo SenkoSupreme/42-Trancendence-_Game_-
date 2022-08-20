@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import io, { Socket } from 'socket.io-client';
+import { socket } from "../game";
 
-const socket = io('10.12.10.3:3001'); //update this to mac pubic ip
 
 const JoinRoomcontainer = styled.div`
     width: 100%;

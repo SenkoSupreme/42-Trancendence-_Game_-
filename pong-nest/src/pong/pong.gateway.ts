@@ -10,9 +10,24 @@ import {
 } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
 
-const players = {};
-let P1 = {};
-let P2 = {};
+const P1 = {
+  id: 0,
+  x: 0,
+  y: 0,
+  width: 12,
+  height: 100,
+  colour: "#f9e076",
+  side: "left",
+};
+const P2 = {
+  x: 1268,
+  y: 0,
+  width: 12,
+  height: 100,
+  colour: '#9e2626',
+  side: 'right',
+};
+const listOfPlayers = {};
 
 @WebSocketGateway({ cors: true })
 export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -20,69 +35,56 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
   server: Server;
 
   handleConnection(client: Socket) {
-    console.log(`Client connected + ${client.id}`);
+    console.log('Client connected ' + client.id);
+
   }
 
   handleDisconnect(client: Socket) {
-    console.log('Client disconnected');
-    delete players[client.id];
+    console.log('Client disconnected ' + client.id);
     this.server.emit('PlayerDisconnected');
-    console.log('number of players:' + Object.keys(players).length);
+    delete listOfPlayers[client.id];
+    console.log('Players :' + (Object.keys(listOfPlayers).length));
   }
 
   // //JOIN GAME HANDLER
-  // @SubscribeMessage('join_game')
-  // public async joinGame(socket_r: Socket, data: any) {
-  //   const ConnectedSockets = this.server.sockets.adapter.rooms.get(data);
-  //   const socketRooms = Array.from(socket_r.rooms.values()).filter(
-  //     (r) => r !== socket_r.id);
+  @SubscribeMessage('join_game')
+  public async joinGame(socket_r: Socket, data: any) {
+    // const ConnectedSockets = this.server.sockets.adapter.rooms.get(data);
+    // const socketRooms = Array.from(socket_r.rooms.values()).filter(
+    //   (r) => r !== socket_r.id);
 
-  //   await socket_r.join(data);
-  //   socket_r.to(data).emit('joined_game', data);
-  //   console.log(`${data} joined`);
-  // }
+    // await socket_r.join(data);
+    // socket_r.to(data).emit('joined_game', data);
+    console.log(`joined`);
+  }
 
   //NEW PLAYER HANDLER
   @SubscribeMessage('update')
-  handleNewPlayer(client: Socket, data: any) {
-    players[client.id] = data;
-    P1 = players[client.id];
-    console.log('number of players:' + Object.keys(players).length + ' ' + client.id);
-    if (Object.keys(players).at(1)) {
-      players[client.id].side = 'right';
-      players[client.id].x = 1268;
-      players[client.id].colour = '#9e2626';
-      this.server.emit('Second_Player', players[client.id]);
+  handleNewPlayer(client: Socket) {
+    listOfPlayers[client.id] = P1;
+    this.server.sockets.emit('player1_update', listOfPlayers[client.id]);
+    if (Object.keys(listOfPlayers).length === 2) {
+      listOfPlayers[client.id] = P2;
+      this.server.sockets.emit('player2_update', listOfPlayers[client.id]);
     }
-    //this.server.sockets.emit('player_update', players[client.id]);
   }
 
   //handle player movement
   @SubscribeMessage('arrow_keyUP')
   handleArrowKeyUP(client: Socket) {
-    if (players[client.id].side === 'left' && players[client.id].y > 0) {
-      players[client.id].y -= 50;
-      this.server.emit('player1_update', players[client.id]);
-    } else if (
-      players[client.id].side === 'right' &&
-      players[client.id].y > 0
-    ) {
-      players[client.id].y -= 50;
-      this.server.emit('player2_update', players[client.id]);
+    if (listOfPlayers[client.id].y > 0) {
+      listOfPlayers[client.id].y -= 50;
+      console.log(listOfPlayers[client.id].side + listOfPlayers[client.id].y);
+      this.server.emit('player1_update', listOfPlayers[client.id]);
     }
   }
 
   @SubscribeMessage('arrow_keyDown')
   handleArrowKeyDown(client: Socket) {
-    if (players[client.id].side === 'left' && players[client.id].y < 720) {
-      players[client.id].y += 50;
-      this.server.emit('player1_update', players[client.id]);
-    } else if (
-      players[client.id].side === 'right' &&
-      players[client.id].y < 720
-    ) {
-      players[client.id].y += 50;
-      this.server.emit('player2_update', players[client.id]);
+    if (listOfPlayers[client.id].y < 650) {
+      listOfPlayers[client.id].y += 50;
+      console.log(listOfPlayers[client.id].side + listOfPlayers[client.id].y);
+      this.server.emit('player1_update', listOfPlayers[client.id]);
     }
   }
 
@@ -115,19 +117,19 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
       data.dx = -data.dx;
       //update score here
     }
-    // console.log(P1.x);
-    // if ((collision(P2, data) && data.dx > 0) 
-    // ) {
-    //   data.dx = -data.dx;
-    //   console.log('collision P2');
-    // }
-    if ((collision(P1, data) && data.dx < 0))
+    // console.log(listOfPlayers[client.id].x);
+    if ((collision(listOfPlayers[client.id], data) && data.dx > 0 && 
+        listOfPlayers[client.id].side === 'right')){
+      data.dx = -data.dx;
+      console.log('collision P2');
+    }
+    if ((collision(listOfPlayers[client.id], data) && data.dx < 0))
     {
       data.dx = -data.dx;
       console.log('collision P1');
     }
     data.x += data.dx;
     data.y += data.dy;
-    this.server.sockets.emit('ball_update', data);
+    this.server.emit('ball_update', data);
   }
 }

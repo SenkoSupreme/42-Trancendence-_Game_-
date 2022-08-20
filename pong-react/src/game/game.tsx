@@ -5,15 +5,14 @@ import paddle from "./paddle";
 import data from "./data";
 import { JoinRoom } from "./components/Joinroom";
 
-const socket = io('10.12.10.3:3001'); //update this to mac pubic ip
-let {paddleProps, ballObj} = data;
+export const socket = io('localhost:3001'); //update this to mac pubic ip
+let {ballObj} = data;
 
 function Game () {    
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    let keypress: boolean = true;
     let newPlayer: boolean = false;
     let rightPaddle: any = {};
-    let leftPaddle: any = paddleProps;
+    let leftPaddle: any = {};
 
     
     useEffect(() => {
@@ -28,9 +27,8 @@ function Game () {
             }
         }
         
-        socket.on('Second_Player', data => 
+        socket.on('Player2_update', data => 
         {
-            console.log('player2 in');
             newPlayer = true;
             rightPaddle = data;
             
@@ -38,9 +36,6 @@ function Game () {
 
         socket.on('player1_update', data => {
             leftPaddle = data;
-        })
-        socket.on('player2_update', data => {
-            rightPaddle = data;
         })
         socket.on('PlayerDisconnected', () =>
         {
@@ -83,9 +78,8 @@ function Game () {
             requestAnimationFrame(render);
         };
         canvasRef.current?.focus();
-        if(keypress) {
-            api_updates();
-        }
+        
+        api_updates();
         render();
         
     }, []);
@@ -94,17 +88,16 @@ function Game () {
     const keyboardevent = (e: React.KeyboardEvent<HTMLCanvasElement>) => {
         if (e.key === "ArrowUp") {
             socket.emit('arrow_keyUP');
-            keypress = true;
+            console.log('up');
         } 
         else if (e.key === "ArrowDown") {
             socket.emit('arrow_keyDown');
-            keypress = true;
+            console.log('down');
         }
     }
     function api_updates()
     {
-        socket.emit('update',leftPaddle);
-        keypress = false;
+        socket.emit('update');
     }
     return (
         <>
