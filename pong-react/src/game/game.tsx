@@ -2,11 +2,11 @@ import React, { useEffect, useRef } from "react";
 import './game.css';
 import io, { Socket } from 'socket.io-client';
 import paddle from "./paddle";
-import data from "./data";
+import ball from "./data";
 import { JoinRoom } from "./components/Joinroom";
 
-export const socket = io('localhost:3001'); //update this to mac pubic ip
-let {ballObj} = data;
+export const socket = io('http://10.11.13.10:3001'); //update this to mac pubic ip
+let {ballObj} = ball;
 
 function Game () {    
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -27,10 +27,10 @@ function Game () {
             }
         }
         
-        socket.on('Player2_update', data => 
+        socket.on('player2_update', data => 
         {
-            newPlayer = true;
             rightPaddle = data;
+            newPlayer = true;
             
         });
 
@@ -44,7 +44,6 @@ function Game () {
 
         });
 
-        console.log(`is New : ${newPlayer}`);
         const renderPaddle = () => {
             const paddleC = canvasRef.current;
             const ctx = paddleC?.getContext('2d');
@@ -55,31 +54,30 @@ function Game () {
             }
         }
 
-        const initBall = () => {
-            socket.emit('ball_init', ballObj);
+        const drawBall = () => {
             socket.on('ball_update', data => {
                 ballObj = data;
+                const ballC = canvasRef.current;
+                const ctx = ballC?.getContext('2d');
+                ctx?.beginPath();
+                ctx?.arc(ballObj.x, ballObj.y, ballObj.rad, 0, Math.PI * 2, false);
+                ctx!.fillStyle = '#ffffff';
+                ctx!.strokeStyle = '#000000';
+                ctx?.fill();
+                ctx?.stroke();
+                ctx?.closePath();
             });
-            const ballC = canvasRef.current;
-            const ctx = ballC?.getContext('2d');
-            ctx?.beginPath();
-            ctx?.arc(ballObj.x, ballObj.y, ballObj.rad, 0, Math.PI * 2, false);
-            ctx!.fillStyle = '#ffffff';
-            ctx!.strokeStyle = '#000000';
-            ctx?.fill();
-            ctx?.stroke();
-            ctx?.closePath();
         }
         
         const render = () => {
+            api_updates();
             renderCanvas();
             renderPaddle();
-            initBall();
+            drawBall();
             requestAnimationFrame(render);
         };
+
         canvasRef.current?.focus();
-        
-        api_updates();
         render();
         
     }, []);
@@ -97,6 +95,7 @@ function Game () {
     }
     function api_updates()
     {
+        socket.emit('ball_init', ballObj);
         socket.emit('update');
     }
     return (

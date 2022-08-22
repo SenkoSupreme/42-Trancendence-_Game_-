@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import io, { Socket } from 'socket.io-client';
 import { socket } from "../game";
 
 
