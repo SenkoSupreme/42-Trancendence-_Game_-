@@ -3,6 +3,8 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { io } from 'socket.io-client';
+export const socket = io('10.11.13.8:3001'); //update this to mac pubic ip
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement

@@ -4,16 +4,20 @@ import io, { Socket } from 'socket.io-client';
 import paddle from "./paddle";
 import data from "./data";
 import { JoinRoom } from "./components/Joinroom";
+import { socket } from "..";
 
-const socket = io('10.12.10.3:3001'); //update this to mac pubic ip
-let {paddleProps, ballObj} = data;
+let {ballObj} = data;
 
 function Game () {    
     const canvasRef = useRef<HTMLCanvasElement>(null);
     let keypress: boolean = true;
     let newPlayer: boolean = false;
     let rightPaddle: any = {};
-    let leftPaddle: any = paddleProps;
+    let leftPaddle: any = {};
+    // let p1Score: number = 0;
+    // let p2Score: number = 0;
+    let [p1Score, setP1Score] = React.useState(0);
+    let [p2Score, setP2Score] = React.useState(0);
 
     
     useEffect(() => {
@@ -28,11 +32,10 @@ function Game () {
             }
         }
         
-        socket.on('Second_Player', data => 
+        socket.on('player2_update', data => 
         {
             console.log('player2 in');
             newPlayer = true;
-            rightPaddle = data;
             
         });
 
@@ -49,13 +52,11 @@ function Game () {
 
         });
 
-        console.log(`is New : ${newPlayer}`);
         const renderPaddle = () => {
             const paddleC = canvasRef.current;
             const ctx = paddleC?.getContext('2d');
             paddle(ctx, paddleC, leftPaddle);
-            if (newPlayer)
-            {
+            if (newPlayer) {
                 paddle(ctx, paddleC, rightPaddle);
             }
         }
@@ -75,7 +76,26 @@ function Game () {
             ctx?.stroke();
             ctx?.closePath();
         }
-        
+        const scoreUpdate = () => {
+            socket.on('player1_scored', data => {
+                console.log('player1 scored');
+                if (data.side === 'left')
+                {  
+                    setP1Score(data.points);
+                }
+                // socket.off('player1_scored');
+            });
+            socket.on('player2_scored', data => {
+                console.log('player2 scored');
+                if (data.side === 'right') {
+                    console.log(data.points);
+                    setP2Score(data.points);
+                }
+            });
+            socket.off('player2_scored');
+           
+        }
+        scoreUpdate();
         const render = () => {
             renderCanvas();
             renderPaddle();
@@ -86,6 +106,7 @@ function Game () {
         if(keypress) {
             api_updates();
         }
+        
         render();
         
     }, []);
@@ -103,7 +124,15 @@ function Game () {
     }
     function api_updates()
     {
-        socket.emit('update',leftPaddle);
+        socket.emit('update');
+        socket.on('player_moved', data => {
+            if (data.side === 'left') {
+                leftPaddle = data;
+            }
+            else if (data.side === 'right') {
+                rightPaddle = data;
+            }
+        });
         keypress = false;
     }
     return (
@@ -113,6 +142,14 @@ function Game () {
             tabIndex={0}
             onKeyDown={keyboardevent}
             width="1280" height="720"></canvas>
+            <div className="score">
+                <div className="player1">
+                    <p>Player 1: {p1Score}</p>
+                </div>
+                <div className="player2">
+                    <p>Player 2: {p2Score}</p>
+                </div>
+            </div>
         </>
             );
     }

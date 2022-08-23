@@ -13,7 +13,7 @@ export default {
    paddleProps: {
       side : 'left',
       height: 100,
-      width: 12,
+      width: 9,
       y: 0,
       x: 0,
       colour: "#F9E076",
