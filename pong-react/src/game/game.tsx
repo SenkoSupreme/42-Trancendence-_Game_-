@@ -5,6 +5,7 @@ import paddle from "./paddle";
 import data from "./data";
 import { JoinRoom } from "./components/Joinroom";
 import { socket } from "..";
+import Score from "./components/score";
 
 let {ballObj} = data;
 
@@ -14,11 +15,6 @@ function Game () {
     let newPlayer: boolean = false;
     let rightPaddle: any = {};
     let leftPaddle: any = {};
-    // let p1Score: number = 0;
-    // let p2Score: number = 0;
-    let [p1Score, setP1Score] = React.useState(0);
-    let [p2Score, setP2Score] = React.useState(0);
-
     
     useEffect(() => {
         const renderCanvas = () => {
@@ -76,26 +72,7 @@ function Game () {
             ctx?.stroke();
             ctx?.closePath();
         }
-        const scoreUpdate = () => {
-            socket.on('player1_scored', data => {
-                console.log('player1 scored');
-                if (data.side === 'left')
-                {  
-                    setP1Score(data.points);
-                }
-                // socket.off('player1_scored');
-            });
-            socket.on('player2_scored', data => {
-                console.log('player2 scored');
-                if (data.side === 'right') {
-                    console.log(data.points);
-                    setP2Score(data.points);
-                }
-            });
-            socket.off('player2_scored');
-           
-        }
-        scoreUpdate();
+
         const render = () => {
             renderCanvas();
             renderPaddle();
@@ -107,7 +84,7 @@ function Game () {
             api_updates();
         }
         
-        render();
+        render(); 
         
     }, []);
     
@@ -134,6 +111,7 @@ function Game () {
             }
         });
         keypress = false;
+        
     }
     return (
         <>
@@ -142,14 +120,7 @@ function Game () {
             tabIndex={0}
             onKeyDown={keyboardevent}
             width="1280" height="720"></canvas>
-            <div className="score">
-                <div className="player1">
-                    <p>Player 1: {p1Score}</p>
-                </div>
-                <div className="player2">
-                    <p>Player 2: {p2Score}</p>
-                </div>
-            </div>
+            <Score/>
         </>
             );
     }

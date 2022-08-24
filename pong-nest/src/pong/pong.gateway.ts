@@ -41,10 +41,10 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
   handleConnection(client: Socket) {
     console.log(`Client connected + ${client.id}`);
     listOfPlayers.set(client.id, P1)
-    this.server.sockets.emit('player1_update', listOfPlayers.get(client.id));
+    this.server.emit('player1_update', listOfPlayers.get(client.id));
     if (listOfPlayers.size == 2) {
       listOfPlayers.set(client.id, P2)
-      this.server.sockets.emit('player2_update', listOfPlayers.get(client.id));
+      this.server.emit('player2_update', listOfPlayers.get(client.id));
     }
     console.log('Players :' + listOfPlayers.size);
 
@@ -144,6 +144,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
       //update score here
       listOfPlayers.get(listOfPlayers.keys().next().value).points++;
       this.server.emit('player1_scored', listOfPlayers.get(listOfPlayers.keys().next().value));
+      console.log("Player 1 scored");
     }
 
     if ((collision(listOfPlayers.get(client.id), data) && data.dx > 0 
@@ -161,6 +162,6 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
     data.x += data.dx;
     data.y += data.dy;
     //console.log('ball ' + data.x + ' ' + data.y);
-    this.server.sockets.emit('ball_update', data);
+    this.server.emit('ball_update', data);
   }
 }
