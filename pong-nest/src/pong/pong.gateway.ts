@@ -14,7 +14,7 @@ const P1 = {
   id: 0,
   x: 0,
   y: 0,
-  width: 8,
+  width: 10,
   height: 100,
   colour: "#f9e076",
   side: "left",
@@ -24,7 +24,7 @@ const P2 = {
   id: 0,
   x: 1272,
   y: 0,
-  width: 8,
+  width: 10,
   height: 100,
   colour: '#9e2626',
   side: 'right',
@@ -37,6 +37,7 @@ const listOfPlayers:Map<string, any> = new Map();
 export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
+
 
   handleConnection(client: Socket) {
     console.log(`Client connected + ${client.id}`);
@@ -120,6 +121,10 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
         objPlayer.x < objBall.x + objBall.rad &&
         objPlayer.y + objPlayer.height > objBall.y &&
         objPlayer.y < objBall.y + objBall.rad) 
+        // if (ball.x < player.x + player.w &&
+        //   ball.x + ball.w > player.x &&
+        //   ball.y < player.y + player.h &&
+        //   ball.h + ball.y > player.y) {
         {
           return true;
         } 
@@ -133,18 +138,22 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
       data.dy = -data.dy;
     }
     if (data.x < 0) {
-      data.dx = -data.dx;
-      //update score here
       listOfPlayers.get(client.id).points++;
       this.server.emit('player2_scored', listOfPlayers.get(client.id));
+      console.log("Player 2 scored");
+
+      data.x = 640;
+      data.y = 350;
+      //update score here
       
     }
     if (data.x + data.rad > 1280) {
-      data.dx = -data.dx;
-      //update score here
       listOfPlayers.get(listOfPlayers.keys().next().value).points++;
       this.server.emit('player1_scored', listOfPlayers.get(listOfPlayers.keys().next().value));
       console.log("Player 1 scored");
+      data.x = 640;
+      data.y = 350;
+      //update score here
     }
 
     if ((collision(listOfPlayers.get(client.id), data) && data.dx > 0 
@@ -159,9 +168,11 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
       data.dx = -data.dx;
       console.log('collision P1');
     }
+
+
     data.x += data.dx;
     data.y += data.dy;
-    //console.log('ball ' + data.x + ' ' + data.y);
+    console.log('ball ' + data.dx + ' ' + data.dy);
     this.server.emit('ball_update', data);
   }
 }

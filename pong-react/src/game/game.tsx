@@ -5,7 +5,7 @@ import paddle from "./paddle";
 import data from "./data";
 import { JoinRoom } from "./components/Joinroom";
 import { socket } from "..";
-import Score from "./components/score";
+import Score, {p1_points, p2_points } from "./components/score";
 
 let {ballObj} = data;
 
@@ -15,6 +15,7 @@ function Game () {
     let newPlayer: boolean = false;
     let rightPaddle: any = {};
     let leftPaddle: any = {};
+    let animation_id:any;
     
     useEffect(() => {
         const renderCanvas = () => {
@@ -27,7 +28,7 @@ function Game () {
                 ctxBG?.drawImage(bg, 0, 0, canvasBG!.width, canvasBG!.height);
             }
         }
-        
+
         socket.on('player2_update', data => 
         {
             console.log('player2 in');
@@ -73,19 +74,31 @@ function Game () {
             ctx?.closePath();
         }
 
+        
         const render = () => {
             renderCanvas();
             renderPaddle();
             initBall();
-            requestAnimationFrame(render);
+           animation_id = requestAnimationFrame(render);
+        //    if (!newPlayer) {
+        //         alert('waiting for player 2');
+        //     }
+            if (p1_points >= 10) {
+                cancelAnimationFrame(animation_id);
+                alert('YELLOW wins');
+            }
+            else if (p2_points >= 10) {
+                cancelAnimationFrame(animation_id);
+                alert('RED wins');
+            }
         };
         canvasRef.current?.focus();
+        render();
+        
         if(keypress) {
             api_updates();
         }
-        
-        render(); 
-        
+
     }, []);
     
     
@@ -120,7 +133,7 @@ function Game () {
             tabIndex={0}
             onKeyDown={keyboardevent}
             width="1280" height="720"></canvas>
-            <Score/>
+        <Score/>
         </>
             );
     }
