@@ -5,9 +5,10 @@ import { socket } from "../..";
 const ScoreContainer = styled.div`
     outline: none;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
-    width: 70%;
+    align-content: center;
+    width: 70rem;
     margin: 0 auto;
     padding: 0.5rem;
     background-color: #fff;

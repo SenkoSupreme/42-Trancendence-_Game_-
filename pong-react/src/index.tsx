@@ -4,7 +4,7 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { io } from 'socket.io-client';
-export const socket = io('0.0.0.0:3001'); //update this to mac pubic ip
+export const socket = io('10.11.11.9:3001'); //update this to mac pubic ip
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement

@@ -20,27 +20,13 @@ export default (ctx:any, paddleC: any, paddleProps:any) => {
         ctx.beginPath();
         ctx.rect(this.x, this.y, this.width, this.height);
         ctx.fillStyle =  this.colour ;
-        ctx.strokeStyle =  "white";
-        ctx.lineWidth = 1;
+        ctx.strokeStyle =  "#042134";
+        ctx.lineWidth = 3;
         ctx.shadowBlur = 0;
         ctx.shadowColor = "blue";
         ctx.strokeRect(this.x, this.y, this.width, this.height);
         ctx.fill();
         ctx.closePath();
-        // if (isright === 1)
-        // {
-        //     this.x = paddleC.width - paddleProps.width;
-        //     //console.log(this.x);
-        //     ctx.beginPath();
-        //     ctx.rect(this.x, this.y, this.width, this.height);
-        //     ctx.fillStyle =  "#9e2626" ;
-        //     ctx.strokeStyle =  "white";
-        //     ctx.lineWidth = 1;
-        //     ctx.shadowBlur = 0;
-        //     ctx.shadowColor = "blue";
-        //     ctx.strokeRect(this.x, this.y, this.width, this.height);
-        //     ctx.fill();
-        // }
       }
 
     }

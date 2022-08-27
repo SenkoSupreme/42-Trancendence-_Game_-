@@ -12,7 +12,7 @@ import { Socket, Server } from 'socket.io';
 
 const P1 = {
   id: 0,
-  x: 0,
+  x: 4,
   y: 0,
   width: 10,
   height: 100,
@@ -22,7 +22,7 @@ const P1 = {
 };
 const P2 = {
   id: 0,
-  x: 1272,
+  x: 1264,
   y: 0,
   width: 10,
   height: 100,
@@ -58,17 +58,17 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
     console.log('Players :' + listOfPlayers.size);
   }
 
-  // //JOIN GAME HANDLER
-  // @SubscribeMessage('join_game')
-  // public async joinGame(socket_r: Socket, data: any) {
-  //   const ConnectedSockets = this.server.sockets.adapter.rooms.get(data);
-  //   const socketRooms = Array.from(socket_r.rooms.values()).filter(
-  //     (r) => r !== socket_r.id);
+  //JOIN GAME HANDLER
+  @SubscribeMessage('join_game')
+  public async joinGame(socket_r: Socket, data: any) {
+    const ConnectedSockets = this.server.sockets.adapter.rooms.get(data);
+    const socketRooms = Array.from(socket_r.rooms.values()).filter(
+      (r) => r !== socket_r.id);
 
-  //   await socket_r.join(data);
-  //   socket_r.to(data).emit('joined_game', data);
-  //   console.log(`${data} joined`);
-  // }
+    await socket_r.join(data);
+    socket_r.to(data).emit('joined_game', data);
+    console.log(`${data} joined`);
+  }
 
   //NEW PLAYER HANDLER
   @SubscribeMessage('update')
@@ -91,7 +91,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('arrow_keyUP')
   handleArrowKeyUP(client: Socket) {
     if (listOfPlayers.get(client.id).y > 0) {
-      listOfPlayers.get(client.id).y -= 50;
+      listOfPlayers.get(client.id).y -= 20;
       // console.log(
       //   listOfPlayers.get(client.id).id + ' ' +
       //      listOfPlayers.get(client.id).side + ' ' + 
@@ -103,7 +103,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('arrow_keyDown')
   handleArrowKeyDown(client: Socket) {
     if (listOfPlayers.get(client.id).y < 650) {
-      listOfPlayers.get(client.id).y += 50;
+      listOfPlayers.get(client.id).y += 20;
       // console.log(
       //   listOfPlayers.get(client.id).id + ' ' + 
       //  listOfPlayers.get(client.id).side + ' ' + 
@@ -140,6 +140,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (data.x < 0) {
       listOfPlayers.get(client.id).points++;
       this.server.emit('player2_scored', listOfPlayers.get(client.id));
+      //this.server.off('player2_scored', listOfPlayers.get(client.id));
       console.log("Player 2 scored");
 
       data.x = 640;
@@ -150,7 +151,9 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (data.x + data.rad > 1280) {
       listOfPlayers.get(listOfPlayers.keys().next().value).points++;
       this.server.emit('player1_scored', listOfPlayers.get(listOfPlayers.keys().next().value));
+      //this.server.off('player2_scored', listOfPlayers.get(client.id));
       console.log("Player 1 scored");
+      
       data.x = 640;
       data.y = 350;
       //update score here
@@ -172,7 +175,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     data.x += data.dx;
     data.y += data.dy;
-    console.log('ball ' + data.dx + ' ' + data.dy);
+   // console.log('ball ' + data.dx + ' ' + data.dy);
     this.server.emit('ball_update', data);
   }
 }

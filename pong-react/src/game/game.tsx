@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from "react";
 import './game.css';
-import io, { Socket } from 'socket.io-client';
 import paddle from "./paddle";
 import data from "./data";
 import { JoinRoom } from "./components/Joinroom";
@@ -9,7 +8,7 @@ import Score, {p1_points, p2_points } from "./components/score";
 
 let {ballObj} = data;
 
-function Game () {    
+function Game () {   
     const canvasRef = useRef<HTMLCanvasElement>(null);
     let keypress: boolean = true;
     let newPlayer: boolean = false;
@@ -78,14 +77,15 @@ function Game () {
         const render = () => {
             renderCanvas();
             renderPaddle();
-            initBall();
+            //put condition here to check if player is connected
+            //initBall();
            animation_id = requestAnimationFrame(render);
         //    if (!newPlayer) {
         //         alert('waiting for player 2');
         //     }
             if (p1_points >= 10) {
                 cancelAnimationFrame(animation_id);
-                alert('YELLOW wins');
+                //alert('YELLOW wins');
             }
             else if (p2_points >= 10) {
                 cancelAnimationFrame(animation_id);
@@ -128,7 +128,7 @@ function Game () {
     }
     return (
         <>
-        <JoinRoom />
+        <JoinRoom/>
             <canvas id="game" ref={canvasRef}
             tabIndex={0}
             onKeyDown={keyboardevent}

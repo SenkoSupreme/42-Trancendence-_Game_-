@@ -2,15 +2,33 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import { socket } from "../..";
 
-
-const JoinRoomcontainer = styled.div`
+const ContainerBaground = styled.div`
     width: 100%;
-    height: 100%;
+    height: 80%;
+    background-color: #ffffff;
+    position: fixed;
     display: flex;
+    justify-content: center;
+    align-content: center;
+    align-items: center;
+`;
+const JoinRoomcontainer = styled.div`
+    width: 20em;
+    align-items: center;
+    padding: 0.5rem;
+    display: flex;
+    justify-content: space-between;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    margin-top: 10px;
+    margin: auto;
+    margin-bottom: 0.5rem;
+    margin-top: 0.5rem;
+    background-color: #fff;
+    border-radius: 0.5rem;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #000;
 `;
 
 const RoomIDInput = styled.input`
@@ -45,33 +63,49 @@ const JoinRoomButton = styled.button`
 
 `;
 
-export function JoinRoom(props: any) {
 
-    const [roomID, setRoomID] = useState("");
-    const handleRoomIDChange = (e: React.ChangeEvent<any>) => {
-        const value = e.target.value;
-        setRoomID(value);
-        console.log(roomID);
-        
+    export function JoinRoom(props: any) 
+    {
+        const [roomID, setRoomID] = useState("");
+        const [is_joined, setIsJoined] = useState(true); 
+        const handleRoomIDChange = (e: React.ChangeEvent<any>) => {
+            const value = e.target.value;
+            setRoomID(value);
+            console.log(roomID);
+            
     }
-    const sendRoomID = () => {
-    socket.emit('join_game', roomID);
+
+
+    const sendRoomID = () => 
+    {
+        if (roomID.length > 0) {
+            socket.emit('join_game', roomID);
+            (document.getElementById("roomIDInput")! as HTMLInputElement ).value  = "";
+            setIsJoined(false);
+        }
+        else {
+            alert("Please enter a room ID");
+        }
     }
 
     return (
-         <form>
-            <JoinRoomcontainer>
-                <h4>Enter Room ID</h4>
-                <RoomIDInput type="text" 
-                placeholder="Room ID" 
-                value={roomID} 
-                onChange={handleRoomIDChange}
-                />
-                <JoinRoomButton
-                type="button"
-                onClick={sendRoomID}
-                >Join</JoinRoomButton>
-            </ JoinRoomcontainer>
-         </form>
+        <>
+            {is_joined && <ContainerBaground>
+                <JoinRoomcontainer>
+                    <h4>Enter Room ID *</h4>
+                    <RoomIDInput 
+                    id = "roomIDInput"
+                    type="text" 
+                    placeholder="Room ID" 
+                    value={roomID} 
+                    onChange={handleRoomIDChange}
+                    />
+                    <JoinRoomButton
+                    type="button"
+                    onClick={sendRoomID}
+                    >Join</JoinRoomButton>
+                </ JoinRoomcontainer> 
+            </ContainerBaground> }
+        </>
     );
 }
