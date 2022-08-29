@@ -15,6 +15,8 @@ function Game () {
     let rightPaddle: any = {};
     let leftPaddle: any = {};
     let animation_id:any;
+    let gameOn: boolean = false;
+
     
     useEffect(() => {
         const renderCanvas = () => {
@@ -27,6 +29,10 @@ function Game () {
                 ctxBG?.drawImage(bg, 0, 0, canvasBG!.width, canvasBG!.height);
             }
         }
+
+        socket.on('START_GAME', () => {
+            gameOn = true;
+        });
 
         socket.on('player2_update', data => 
         {
@@ -77,12 +83,11 @@ function Game () {
         const render = () => {
             renderCanvas();
             renderPaddle();
-            //put condition here to check if player is connected
-            //initBall();
+            // if (gameOn) {
+            //     initBall();
+            // canvasRef.current?.focus();
+            // }
            animation_id = requestAnimationFrame(render);
-        //    if (!newPlayer) {
-        //         alert('waiting for player 2');
-        //     }
             if (p1_points >= 10) {
                 cancelAnimationFrame(animation_id);
                 //alert('YELLOW wins');
@@ -92,14 +97,14 @@ function Game () {
                 alert('RED wins');
             }
         };
-        canvasRef.current?.focus();
-        render();
-        
-        if(keypress) {
-            api_updates();
-        }
+            render();
+            canvasRef.current?.focus();
 
-    }, []);
+            if (keypress) {
+                api_updates();
+            }
+
+    }, [socket]);
     
     
     const keyboardevent = (e: React.KeyboardEvent<HTMLCanvasElement>) => {
