@@ -90,6 +90,7 @@ const JoinRoomButton = styled.button`
 
     return (
         <>
+        <form>
             {is_joined && <ContainerBaground>
                 <JoinRoomcontainer>
                     <h4>Enter Room ID *</h4>
@@ -101,11 +102,12 @@ const JoinRoomButton = styled.button`
                     onChange={handleRoomIDChange}
                     />
                     <JoinRoomButton
-                    type="button"
+                    type="submit"
                     onClick={sendRoomID}
                     >Join</JoinRoomButton>
                 </ JoinRoomcontainer> 
             </ContainerBaground> }
+        </form>
         </>
     );
 }

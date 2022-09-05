@@ -6,7 +6,6 @@ import { JoinRoom } from "./components/Joinroom";
 import { socket } from "..";
 import Score, {p1_points, p2_points } from "./components/score";
 
-let {ballObj} = data;
 
 function Game () {   
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -64,37 +63,35 @@ function Game () {
         }
 
         const initBall = () => {
-            socket.emit('ball_init', ballObj);
             socket.on('ball_update', data => {
-                ballObj = data;
+                const ballC = canvasRef.current;
+                const ctx = ballC?.getContext('2d');
+                ctx?.beginPath();
+                ctx?.arc(data.x, data.y, data.rad, 0, Math.PI * 2, false);
+                ctx!.fillStyle = '#ffffff';
+                ctx!.strokeStyle = '#000000';
+                ctx?.fill();
+                ctx?.stroke();
+                ctx?.closePath();
             });
-            const ballC = canvasRef.current;
-            const ctx = ballC?.getContext('2d');
-            ctx?.beginPath();
-            ctx?.arc(ballObj.x, ballObj.y, ballObj.rad, 0, Math.PI * 2, false);
-            ctx!.fillStyle = '#ffffff';
-            ctx!.strokeStyle = '#000000';
-            ctx?.fill();
-            ctx?.stroke();
-            ctx?.closePath();
         }
 
         
         const render = () => {
             renderCanvas();
             renderPaddle();
-            // if (gameOn) {
-            //     initBall();
-            // canvasRef.current?.focus();
-            // }
-           animation_id = requestAnimationFrame(render);
-            if (p1_points >= 10) {
-                cancelAnimationFrame(animation_id);
-                //alert('YELLOW wins');
+            if (gameOn && newPlayer) {
+                initBall();
+            canvasRef.current!.focus();
             }
-            else if (p2_points >= 10) {
+            setTimeout(() => {
+                animation_id = requestAnimationFrame(render);
+            }, 1000 / 60);
+            if (p1_points === 10) {
                 cancelAnimationFrame(animation_id);
-                alert('RED wins');
+            }
+            else if (p2_points === 10) {
+                cancelAnimationFrame(animation_id);
             }
         };
             render();
@@ -119,7 +116,6 @@ function Game () {
     }
     function api_updates()
     {
-        socket.emit('update');
         socket.on('player_moved', data => {
             if (data.side === 'left') {
                 leftPaddle = data;

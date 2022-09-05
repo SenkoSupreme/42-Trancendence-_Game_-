@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import { socket } from "../..";
 
@@ -45,44 +45,46 @@ const ScoreContainerP2 = styled.div`
     width :100%;
 `;
 
-export let is_score:boolean = false;
-export let p1_points:number = 0;
-export let p2_points:number = 0;
+export let is_score: boolean = false;
+export let p1_points: number = 0;
+export let p2_points: number = 0;
 
 export function JoinRoom(props: any) {
-    let [p1Score, setP1Score] = React.useState(0);
-    let [p2Score, setP2Score] = React.useState(0);
+    const [p1Score, setP1Score] = React.useState(0);
+    const [p2Score, setP2Score] = React.useState(0);
 
-    socket.on('player1_scored', data => {
-        if (data.side === 'left')
-        {
-            setP1Score(data.points);
-            console.log('player1 scored');
-            p1_points= p1Score;
-            console.log(p1_points);
-            is_score = true;
-        }
+    useEffect(() => {
 
-    });
-    socket.on('player2_scored', data => {
-        if (data.side === 'right') {
-            setP2Score(data.points);
-            console.log('player2 scored');
+
+        socket.on('player1_scored', data => {
+
+            setP1Score(data);
+            //console.log('player1 scored', data);
+            p1_points = p1Score;
+            // console.log(p1_points);
+            // is_score = true;
+
+        });
+
+        socket.on('player2_scored', data => {
+
+            setP2Score(data);
+            // console.log('player2 scored');
             p2_points = p2Score;
-            console.log(p2_points);
-            is_score = true;
-        }
-    });
+            // console.log(p2_points);
+
+        });
+    }, []);
 
     return (
         <>
-        <ScoreContainer>
-                <ScoreContainerP1> 
-                <p> Player 1: {p1Score}</p> 
+            <ScoreContainer>
+                <ScoreContainerP1>
+                    <p> Player 1: {p1Score}</p>
                 </ScoreContainerP1>
 
-                <ScoreContainerP2> 
-                <p> Player 2: {p2Score}</p> 
+                <ScoreContainerP2>
+                    <p> Player 2: {p2Score}</p>
                 </ScoreContainerP2>
             </ScoreContainer>
         </>
