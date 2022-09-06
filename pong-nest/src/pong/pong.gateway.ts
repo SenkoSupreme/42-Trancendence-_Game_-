@@ -44,6 +44,7 @@ const BALL = {
 };
 
 const listOfPlayers: Map<string, any> = new Map();
+let intervalid;
 
 @WebSocketGateway({ cors: true })
 export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -76,19 +77,21 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
           listOfPlayers.get(player[1]).id = client.id;
           this.server.emit('player2_update', listOfPlayers.get(player[1]));
         }
-        setInterval(() => {
-          
         if (inroom.size === 2) {
           this.server.emit('START_GAME');
-          this.handleBallMovement(client);
+          intervalid =  setInterval(() => {
+            this.handleBallMovement(client)}, 1000 / 60);
         }
-      }, 1000 / 60);
+        else {
+          this.server.emit('WAITING_FOR_PLAYER');
+        }
       }
     });
   }
 
   handleDisconnect(client: Socket) {
     console.log('Client disconnected ' + client.id);
+    clearInterval(intervalid);
     this.server.emit('PlayerDisconnected');
   }
 
@@ -130,23 +133,23 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
             BALL.dy = -BALL.dy;
           }
           if (BALL.x < 0) {
-            if (listOfPlayers.get(client.id).side === 'right') {
+            // if (listOfPlayers.get(client.id).side === 'right') {
               listOfPlayers.get(client.id).points = listOfPlayers.get(client.id).points + 1;
               this.server.to(listOfPlayers.get(client.id).room).emit('player2_scored', listOfPlayers.get(client.id).points);
               console.log("Player 2 scored", listOfPlayers.get(client.id).points, listOfPlayers.get(client.id).side, client.id);
-            }
+            // }
             BALL.x = 640;
             BALL.y = 350;
             BALL.dx = 4;
             BALL.dy = 4;
             //update score here
           }
-          else if (BALL.x + BALL.rad > 1279) {
-            if (listOfPlayers.get(client.id).side === 'left') {
+          else if (BALL.x + BALL.rad > 1280) {
+            // if (listOfPlayers.get(client.id).side === 'left') {
               listOfPlayers.get(client.id).points = listOfPlayers.get(client.id).points + 1;
               this.server.to(listOfPlayers.get(client.id).room).emit('player1_scored', listOfPlayers.get(client.id).points);
               console.log("Player 1 scored", listOfPlayers.get(client.id).points, listOfPlayers.get(client.id).side, client.id);
-            }
+            // }
             BALL.x = 640;
             BALL.y = 350;
             BALL.dx = 4;
@@ -155,13 +158,13 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
           }
       
           if ((collision(listOfPlayers.get(client.id), BALL) && BALL.dx > 0
-            && listOfPlayers.get(client.id).side === 'right')
+            && listOfPlayers.get(client.id).side == 'right')
           ) {
             BALL.dx = -BALL.dx;
             console.log('collision P2');
           }
           if ((collision(listOfPlayers.get(client.id), BALL) && BALL.dx < 0)
-            && listOfPlayers.get(client.id).side === 'left') {
+            && listOfPlayers.get(client.id).side == 'left') {
             BALL.dx = -BALL.dx;
             console.log('collision P1');
           }

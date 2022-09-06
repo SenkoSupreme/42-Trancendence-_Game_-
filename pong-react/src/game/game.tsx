@@ -1,7 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import './game.css';
 import paddle from "./paddle";
-import data from "./data";
 import { JoinRoom } from "./components/Joinroom";
 import { socket } from "..";
 import Score, {p1_points, p2_points } from "./components/score";
@@ -18,6 +17,30 @@ function Game () {
 
     
     useEffect(() => {
+
+        
+        socket.off('START_GAME').on('START_GAME', () => {
+            gameOn = true;
+        });
+
+        // socket.off('WAITING_FOR_PLAYER').on('WAITING_FOR_PLAYER', () => {
+        //     newPlayer = false;
+        // });
+        
+        socket.off('player1_update').on('player1_update', data => {
+            leftPaddle = data;
+        });
+        socket.off('player2_update').on('player2_update', data => {
+            rightPaddle = data;
+            newPlayer = true;
+        });
+        socket.off('PlayerDisconnected').on('PlayerDisconnected', () =>
+        {
+            console.log('player2 out');
+            newPlayer = false;
+            
+        });
+        
         const renderCanvas = () => {
             const canvasBG = canvasRef.current;
             const ctxBG = canvasBG?.getContext('2d');
@@ -28,31 +51,7 @@ function Game () {
                 ctxBG?.drawImage(bg, 0, 0, canvasBG!.width, canvasBG!.height);
             }
         }
-
-        socket.on('START_GAME', () => {
-            gameOn = true;
-        });
-
-        socket.on('player2_update', data => 
-        {
-            console.log('player2 in');
-            newPlayer = true;
-            
-        });
-
-        socket.on('player1_update', data => {
-            leftPaddle = data;
-        })
-        socket.on('player2_update', data => {
-            rightPaddle = data;
-        })
-        socket.on('PlayerDisconnected', () =>
-        {
-            console.log('player2 out');
-            newPlayer = false;
-
-        });
-
+        
         const renderPaddle = () => {
             const paddleC = canvasRef.current;
             const ctx = paddleC?.getContext('2d');
@@ -63,7 +62,7 @@ function Game () {
         }
 
         const initBall = () => {
-            socket.on('ball_update', data => {
+            socket.off('ball_update').on('ball_update', data => {
                 const ballC = canvasRef.current;
                 const ctx = ballC?.getContext('2d');
                 ctx?.beginPath();
@@ -82,17 +81,21 @@ function Game () {
             renderPaddle();
             if (gameOn && newPlayer) {
                 initBall();
-            canvasRef.current!.focus();
+                canvasRef.current!.focus();
             }
-            setTimeout(() => {
-                animation_id = requestAnimationFrame(render);
-            }, 1000 / 60);
-            if (p1_points === 10) {
-                cancelAnimationFrame(animation_id);
-            }
-            else if (p2_points === 10) {
-                cancelAnimationFrame(animation_id);
-            }
+            animation_id = requestAnimationFrame(render);
+
+            // if (p1_points === 10) {
+            //     cancelAnimationFrame(animation_id);
+            // }
+            // else if (p2_points === 10) {
+            //     cancelAnimationFrame(animation_id);
+            // }
+
+            // if (!newPlayer)
+            // {
+            //     cancelAnimationFrame(animation_id);
+            // }
         };
             render();
             canvasRef.current?.focus();
@@ -100,7 +103,6 @@ function Game () {
             if (keypress) {
                 api_updates();
             }
-
     }, [socket]);
     
     

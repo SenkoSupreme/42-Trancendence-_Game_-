@@ -74,7 +74,11 @@ export function JoinRoom(props: any) {
             // console.log(p2_points);
 
         });
-    }, []);
+        return () => {
+            socket.off('player1_scored');
+            socket.off('player2_scored');
+        }
+    }, [socket]);
 
     return (
         <>

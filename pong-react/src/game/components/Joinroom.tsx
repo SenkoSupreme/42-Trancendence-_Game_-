@@ -64,7 +64,7 @@ const JoinRoomButton = styled.button`
 `;
 
 
-    export function JoinRoom(props: any) 
+export function JoinRoom(props: any) 
     {
         const [roomID, setRoomID] = useState("");
         const [is_joined, setIsJoined] = useState(true); 
