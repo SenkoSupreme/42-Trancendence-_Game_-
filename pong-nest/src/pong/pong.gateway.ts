@@ -37,8 +37,8 @@ const P2 = {
 const BALL = {
   x: 640,
   y: 350,
-  dx: 4,
-  dy: 4,
+  dx: 6,
+  dy: 6,
   rad: 10,
   speed: 10,
 };
@@ -76,17 +76,18 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
         listOfPlayers.set(player[1], P2);
         listOfPlayers.get(player[1]).room = data;
           listOfPlayers.get(player[1]).id = client.id;
-          this.server.emit('player2_update', listOfPlayers.get(player[1]));
           i = 0;
         }
         i++;
         if (inroom.size === 2) {
           this.server.emit('START_GAME');
           this.server.emit('player1_update', listOfPlayers.get(player[0]));
-          intervalid =  setInterval(() => {
-            this.handleBallMovement(player)}, 1000 / 60);
-          console.log('player2 ', listOfPlayers.get(player[1]));
-        }
+          this.server.emit('player2_update', listOfPlayers.get(player[1]));
+          // listOfPlayers.forEach((value, key) => {
+            //   console.log(listOfPlayers.get(key)); }); 
+            intervalid =  setInterval(() => {
+                this.handleBallMovement(listOfPlayers.get(player[0]), listOfPlayers.get(player[1]))}, 1000 / 60);
+          }
         else if (inroom.size === 1) {
           this.server.emit('WAITING_FOR_PLAYER');
           clearInterval(intervalid);
@@ -118,7 +119,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
       }
     }
 
-  handleBallMovement(client: any) {
+  handleBallMovement(player1: any, player2: any) {
     
           //ball handle
           function collision(objPlayer: any, objBall: any) {
@@ -139,47 +140,48 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
             BALL.dy = -BALL.dy;
           }
           if (BALL.x < 0) {
-            if (client[1].side === 'right') {
-              client[1].points = client[1].points + 1;
-              this.server.to(client[1].room).emit('player2_scored', client[1].points);
-              console.log("Player 2 scored", client[1].points, client[1].side);
+            if (player2.side === 'right') {
+              player2.points = player2.points + 1;
+              this.server.to(player2.room).emit('player2_scored', player2.points);
+              console.log("Player 2 scored", player2.points, player2.side);
             }
             BALL.x = 640;
             BALL.y = 350;
-            BALL.dx = 4;
-            BALL.dy = 4;
+            BALL.dx = 6;
+            BALL.dy = 6;
             //update score here
           }
           else if (BALL.x + BALL.rad > 1280) {
-            if (client[0].side === 'left') {
-              client[0].points = client[0].points + 1;
-              this.server.to(client[0].room).emit('player1_scored', client[0].points);
-              console.log("Player 1 scored", client[0].points, client[0].side);
+            if (player1.side === 'left') {
+              player1.points = player1.points + 1;
+              this.server.to(player1.room).emit('player1_scored', player1.points);
+              console.log("Player 1 scored", player1.points, player1.side);
             }
             BALL.x = 640;
             BALL.y = 350;
-            BALL.dx = 4;
-            BALL.dy = 4;
+            BALL.dx = 6;
+            BALL.dy = 6;
             //update score here
           }
       
-          if ((collision(client[1], BALL) && BALL.dx > 0
-            && client[1].side == 'right')
+          if ((collision(player1, BALL) && BALL.dx < 0)
+            && player1.side == 'left') {
+            BALL.dx = -BALL.dx;
+            console.log('collision P1');
+          }
+          
+          if ((collision(player2, BALL) && BALL.dx > 0
+            && player2.side == 'right')
           ) {
             BALL.dx = -BALL.dx;
             console.log('collision P2');
-          }
-          if ((collision(client[0], BALL) && BALL.dx < 0)
-            && client[0].side == 'left') {
-            BALL.dx = -BALL.dx;
-            console.log('collision P1');
           }
       
           
           BALL.x += BALL.dx;
           BALL.y += BALL.dy;
           // console.log('ball ' + BALL.dx + ' ' + BALL.dy);
-            this.server.to(client[0].room).emit('ball_update', BALL);
+            this.server.to(player1.room).emit('ball_update', BALL);
   }
 
 }
