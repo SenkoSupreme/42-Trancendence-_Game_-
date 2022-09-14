@@ -8,16 +8,15 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
-import { dirxml } from 'console';
 import { Socket, Server } from 'socket.io';
 
 const P1 = {
   id: 0,
   x: 4,
   y: 0,
-  width: 10,
+  width: 8,
   height: 100,
-  colour: "#f9e076",
+  colour: "#02CEFC",
   side: "left",
   points: 0,
   room: "",
@@ -26,9 +25,9 @@ const P2 = {
   id: 0,
   x: 1264,
   y: 0,
-  width: 10,
+  width: 8,
   height: 100,
-  colour: '#9e2626',
+  colour: '#ED006C',
   side: 'right',
   points: 0,
   room: "",
@@ -37,8 +36,8 @@ const P2 = {
 const BALL = {
   x: 640,
   y: 350,
-  dx: 6,
-  dy: 6,
+  dx: 8,
+  dy: 8,
   rad: 10,
   speed: 10,
 };
@@ -83,14 +82,14 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
           this.server.emit('START_GAME');
           this.server.emit('player1_update', listOfPlayers.get(player[0]));
           this.server.emit('player2_update', listOfPlayers.get(player[1]));
-          // listOfPlayers.forEach((value, key) => {
-            //   console.log(listOfPlayers.get(key)); }); 
             intervalid =  setInterval(() => {
-                this.handleBallMovement(listOfPlayers.get(player[0]), listOfPlayers.get(player[1]))}, 1000 / 60);
+                this.handleBallMovement(listOfPlayers.get(player[0]), listOfPlayers.get(player[1]))}, 1000 / 55);
           }
         else if (inroom.size === 1) {
           this.server.emit('WAITING_FOR_PLAYER');
           clearInterval(intervalid);
+          if (player[0]) listOfPlayers.set(player[0], P1);
+          if(player[1]) listOfPlayers.set(player[1], P2);
         }
       }
     });
@@ -102,7 +101,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.server.emit('PlayerDisconnected');
   }
 
-  // handle player movement
+  // handle player movement 
     @SubscribeMessage('arrow_keyUP')
     handleArrowKeyUP(client: Socket) {
       if (listOfPlayers.get(client.id).y > 0) {
@@ -144,11 +143,18 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
               player2.points = player2.points + 1;
               this.server.to(player2.room).emit('player2_scored', player2.points);
               console.log("Player 2 scored", player2.points, player2.side);
+              if (player2.points === 10) {
+                this.server.to(player2.room).emit('player2_won');
+                //send player points here
+                player2.points = 0;
+                console.log("Player 2 won");
+                clearInterval(intervalid);
+              }
             }
             BALL.x = 640;
             BALL.y = 350;
-            BALL.dx = 6;
-            BALL.dy = 6;
+            BALL.dx = 8;
+            BALL.dy = 8;
             //update score here
           }
           else if (BALL.x + BALL.rad > 1280) {
@@ -156,11 +162,18 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
               player1.points = player1.points + 1;
               this.server.to(player1.room).emit('player1_scored', player1.points);
               console.log("Player 1 scored", player1.points, player1.side);
+              if (player1.points === 10) {
+                this.server.to(player1.room).emit('player1_won');
+                //send player points here
+                player1.points = 0;
+                console.log("Player 1 won");
+                clearInterval(intervalid);
+              }
             }
             BALL.x = 640;
             BALL.y = 350;
-            BALL.dx = 6;
-            BALL.dy = 6;
+            BALL.dx = 8;
+            BALL.dy = 8;
             //update score here
           }
       
@@ -168,13 +181,16 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
             && player1.side == 'left') {
             BALL.dx = -BALL.dx;
             console.log('collision P1');
+            this.server.to(player1.room).emit('play_sound');
           }
-          
+
           if ((collision(player2, BALL) && BALL.dx > 0
             && player2.side == 'right')
           ) {
             BALL.dx = -BALL.dx;
             console.log('collision P2');
+            this.server.to(player2.room).emit('play_sound');
+
           }
       
           

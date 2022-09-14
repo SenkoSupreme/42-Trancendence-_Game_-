@@ -1,10 +1,37 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import './game.css';
 import paddle from "./paddle";
 import { JoinRoom } from "./components/Joinroom";
 import { socket } from "..";
 import Score, {p1_points, p2_points } from "./components/score";
+import styled from "styled-components";
+import bg from "./assets/bg.jpeg";
 
+
+const Background = styled.div`
+    background-color: #000000;
+    background-image: url(${bg});
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    position: fixed;
+    opacity: .9;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    &:after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+`;
 
 function Game () {   
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -14,7 +41,7 @@ function Game () {
     let leftPaddle: any = {};
     let animation_id:any;
     let gameOn: boolean = false;
-
+    const audio = new Audio('touch.wav');
     
     useEffect(() => {
 
@@ -45,7 +72,7 @@ function Game () {
             const canvasBG = canvasRef.current;
             const ctxBG = canvasBG?.getContext('2d');
             const bg = new Image();
-            bg.src = 'splash_art01.png';
+            bg.src = 'splash.png';
             bg.onload = function()
             {
                 ctxBG?.drawImage(bg, 0, 0, canvasBG!.width, canvasBG!.height);
@@ -84,21 +111,20 @@ function Game () {
                 canvasRef.current!.focus();
             }
             animation_id = requestAnimationFrame(render);
-
-            // if (p1_points === 10) {
-            //     cancelAnimationFrame(animation_id);
-            // }
-            // else if (p2_points === 10) {
-            //     cancelAnimationFrame(animation_id);
-            // }
+            socket.off('player1_won').on('player1_won', () => {
+                alert('Player 1 won!');
+            });
+            socket.on('player2_won', () => {
+                
+            });
 
             // if (!newPlayer)
             // {
-            //     cancelAnimationFrame(animation_id);
-            // }
-        };
+                //     cancelAnimationFrame(animation_id);
+                // }
+            };
             render();
-            canvasRef.current?.focus();
+            // canvasRef.current?.focus();
 
             if (keypress) {
                 api_updates();
@@ -129,8 +155,12 @@ function Game () {
         keypress = false;
         
     }
+    socket.on('play_sound', () => {
+        audio.play();
+    });
     return (
         <>
+        <Background />
         <JoinRoom/>
             <canvas id="game" ref={canvasRef}
             tabIndex={0}
