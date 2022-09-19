@@ -46,16 +46,44 @@ const JoinRoomcontainer = styled.div`
     font-size: 1.5rem;
     font-weight: bold;
     position: relative;
+    @font-face {
+        font-family: 'PsBold';
+        src: url("PsBold.ttf") format("truetype");
+        font-size: 1.3rem;
+    }
+    @font-face {
+        font-family: 'spoopy';
+        src: url("SpoopyGhostPixel.ttf") format("truetype");
+        font-size: 1.3rem;
+    }
+    @font-face {
+        font-family: 'street';
+        src: url("Act_Of_Rejection.ttf") format("truetype");
+        font-size: 1.3rem;
+    }
+   
     h4 {
-        font-size: 1.5rem;
-        margin-bottom: 0.8rem;
+        font-size: 2rem;
+        margin : 0;
         margin-top: 1rem;
+        margin-bottom: 2rem;
         justify-content: center;
         align-items: center;
-        display: flex;
         color: white;
         z-index: 2;
+        animation: blink 1.5s steps(3, start) infinite;
+        padding-top: 10px;
+        background: radial-gradient(circle at top right, #02E0B9, #B9FDD5, #55C595);
+        -webkit-background-clip: text;
+	    -webkit-text-fill-color: transparent;
+        font-family: 'spoopy';
+        @keyframes blink {
+            to {
+                visibility: hidden;
+            }
+        }
     }
+    
 `;
 
 const RoomIDInput = styled.input`
@@ -70,15 +98,64 @@ const RoomIDInput = styled.input`
 
 `;
 
-const LoadingImg = styled.img`
-    width: 5em;
-    height: 5em;
-    margin-bottom: 0.5rem;
-    padding: 0 10px;
+const LoadingImg = styled.div`
+
+  position: relative;
+  height: 50px;
+  width: 6px;
+  background-color: transparent;
+  animation: paddles 0.75s ease-out infinite;
+  transform: translate3d(0,0,0);
+  margin-bottom: 2rem;
+
+  
+  &:before {
+    content: "";
+    position: absolute;
+    margin: 0 auto;
+    left: 0;
+    right: 0;
+    top: 15px;
+    width: 10px;
+    height: 10px;
+    background-color: #fff;
+    border-radius: 100%;
+    animation: ballbounce 0.6s ease-out infinite;
+  }
+
+@keyframes paddles {
+  0% {
+    box-shadow: -25px -10px 0px #02CEFC, 25px 10px 0px #ED006C;
+  }
+  50% {
+    box-shadow: -25px 8px 0px #fff, 25px -10px 0px #fff;
+  }
+  100% {
+    box-shadow: -25px -10px 0px #02CEFC, 25px 10px 0px #ED006C;
+  }
+}
+
+@keyframes ballbounce {
+    0%{
+        transform: translateX(-20px) scale(1,1.2);
+    }
+    25%{
+        transform: scale(1.2,1);
+    }
+    50% {
+        transform: translateX(15px) scale(1,1.2);
+    }
+    75% {
+        transform: scale(1.2,1);
+    }
+    100% {
+        transform: translateX(-20px);
+    }
+}
 `;
-LoadingImg.defaultProps = {
-    src: loading,
-};
+// LoadingImg.defaultProps = {
+//     src: loading,
+// };
 
 const JoinRoomButton = styled.button`
     outline: none;
@@ -103,23 +180,21 @@ const JoinRoomButton = styled.button`
 `;
 
 
-export function JoinRoom(props: any) 
-    {
-        const [roomID, setRoomID] = useState("");
-        const [is_joined, setIsJoined] = useState(true); 
-        const handleRoomIDChange = (e: React.ChangeEvent<any>) => {
-            const value = e.target.value;
-            setRoomID(value);
-            console.log(roomID);
-            
+export function JoinRoom(props: any) {
+    const [roomID, setRoomID] = useState("");
+    const [is_joined, setIsJoined] = useState(true);
+    const handleRoomIDChange = (e: React.ChangeEvent<any>) => {
+        const value = e.target.value;
+        setRoomID(value);
+        console.log(roomID);
+
     }
 
 
-    const sendRoomID = () => 
-    {
+    const sendRoomID = () => {
         if (roomID.length > 0) {
             socket.emit('join_game', roomID);
-            (document.getElementById("roomIDInput")! as HTMLInputElement ).value  = "";
+            (document.getElementById("roomIDInput")! as HTMLInputElement).value = "";
             setIsJoined(false);
         }
         else {
@@ -129,25 +204,25 @@ export function JoinRoom(props: any)
 
     return (
         <>
-        <form>
-            {is_joined && <ContainerBaground>
-                <JoinRoomcontainer>
-                    <h4>Enter Room ID *</h4>
-                    <LoadingImg />
-                    <RoomIDInput 
-                    id = "roomIDInput"
-                    type="text" 
-                    placeholder="Room ID" 
-                    value={roomID} 
-                    onChange={handleRoomIDChange}
-                    />
-                    <JoinRoomButton
-                    type="submit"
-                    onClick={sendRoomID}
-                    >Join</JoinRoomButton>
-                </ JoinRoomcontainer> 
-            </ContainerBaground> }
-        </form>
+            <form>
+                {is_joined && <ContainerBaground>
+                    <JoinRoomcontainer>
+                        <h4>* IN QUEUE *</h4>
+                        <LoadingImg />
+                        {/* <RoomIDInput
+                            id="roomIDInput"
+                            type="text"
+                            placeholder="Room ID"
+                            value={roomID}
+                            onChange={handleRoomIDChange}
+                        />
+                        <JoinRoomButton
+                            type="submit"
+                            onClick={sendRoomID}
+                        >Join</JoinRoomButton> */}
+                    </ JoinRoomcontainer>
+                </ContainerBaground>}
+            </form>
         </>
     );
 }

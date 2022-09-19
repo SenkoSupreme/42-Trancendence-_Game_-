@@ -9,7 +9,8 @@ const ScoreContainer = styled.div`
     align-items: center;
     align-content: center;
     width: 70%;
-    margin: 0 auto;
+    margin: auto;
+    margin-top: .3rem;
     padding: 0.5rem;
     background-color: #16213E;
     border-radius: 0.5rem;
@@ -17,7 +18,7 @@ const ScoreContainer = styled.div`
     font-size: 1.5rem;
     font-weight: bold;
     color: #000;
-
+    position: relative;
 `;
 
 const ScoreContainerP1 = styled.div`
@@ -26,7 +27,7 @@ const ScoreContainerP1 = styled.div`
     color: #16213E;
     font-size: 17px;
     border: 2px solid transparent;
-    border-radius: 5px;
+    border-radius: .5rem;
     padding: 4px 10px;
     margin-right: 0.5em;
     float : left;
@@ -38,7 +39,7 @@ const ScoreContainerP2 = styled.div`
     color: #ffffff;
     font-size: 17px;
     border: 2px solid transparent;
-    border-radius: 5px;
+    border-radius: .5rem;
     padding: 4px 10px;
     float : right;
     margin-left: 0.5em;

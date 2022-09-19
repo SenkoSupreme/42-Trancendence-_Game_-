@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-import './game.css';
 import paddle from "./paddle";
 import { JoinRoom } from "./components/Joinroom";
 import { socket } from "..";
@@ -7,6 +6,34 @@ import Score, {p1_points, p2_points } from "./components/score";
 import styled from "styled-components";
 import bg from "./assets/bg.jpeg";
 
+const Container = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    position: relative;
+    z-index: 1;
+
+    
+`;
+const GameContainer = styled.canvas`
+    outline: 1px solid #ffd300;
+    align-content: center;
+    border-radius: 1rem;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    width: 80%;
+    position: relative;
+    margin: auto;
+    margin-bottom: 0;
+    padding: .4rem;
+`;
 
 const Background = styled.div`
     background-color: #000000;
@@ -18,7 +45,6 @@ const Background = styled.div`
     opacity: .9;
     height: 100%;
     width: 100%;
-    position: absolute;
     top: 0;
     left: 0;
     z-index: -1;
@@ -30,6 +56,36 @@ const Background = styled.div`
         width: 100%;
         height: 100%;
         background-color: rgba(0, 0, 0, 0.5);
+    }
+`;
+
+const Tips = styled.div`
+    background: linear-gradient(112.85deg, #16213E 0.53%, rgba(15, 52, 96, 0.81) 39.36%, rgba(120, 52, 131, 0.85) 63.75%, rgba(233, 69, 96, 0.7) 99.58%, rgba(233, 69, 96, 0.7) 99.58%);;
+    outline: none;
+    width: 70%;
+    margin: 0 auto;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+    font-size: 1.5rem;
+    margin-top: 2rem;
+    color: white;
+    font-family: 'Orbitron', cursive;
+    font-weight: bold;
+    z-index: 999;
+    h3 {
+        font-size: 1.5rem;
+        margin-bottom: 0.8rem;
+        margin-top: 1rem;
+
+    }
+    p {
+        font-size: .8rem;
+        margin-bottom: 0.8rem;
+        margin-top: 1rem;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Press Start 2P', cursive;
     }
 `;
 
@@ -161,12 +217,21 @@ function Game () {
     return (
         <>
         <Background />
-        <JoinRoom/>
-            <canvas id="game" ref={canvasRef}
-            tabIndex={0}
-            onKeyDown={keyboardevent}
-            width="1280" height="720"></canvas>
+        {/* <JoinRoom/> */}
+        <Container>
+            <GameContainer id="game" ref={canvasRef}
+                tabIndex={0}
+                onKeyDown={keyboardevent}
+                width="1280" height="720">
+            </GameContainer>
         <Score/>
+        </Container>
+        {/* <Tips> 
+            <h3>How To PLAY:</h3>
+            <p>You must have at least 12iq, use arrow keys, up is up and down is down</p>
+            <p>If you can't play click on the game</p>
+            <p>Have fun! Or maybe not, i don't care</p>
+        </Tips> */}
         </>
             );
     }
