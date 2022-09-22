@@ -1,14 +1,11 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { socket } from "../..";
-import loading from "../assets/loading.webp";
 import background from "../assets/bg.jpeg";
 
 const ContainerBaground = styled.div`
     width: 100%;
     height: 100%;
-    //background: linear-gradient(112.85deg, #16213E 0.53%, rgba(15, 52, 96, 0.81) 39.36%, rgba(120, 52, 131, 0.85) 63.75%, rgba(233, 69, 96, 0.7) 99.58%, rgba(233, 69, 96, 0.7) 99.58%);;
-    //background: white;
     background-image: url(${background});
     background-repeat: no-repeat;
     background-position: center;
@@ -45,7 +42,7 @@ const JoinRoomcontainer = styled.div`
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
     font-size: 1.5rem;
     font-weight: bold;
-    position: relative;
+    z-index: 999;
     @font-face {
         font-family: 'PsBold';
         src: url("PsBold.ttf") format("truetype");
@@ -209,7 +206,7 @@ export function JoinRoom(props: any) {
                     <JoinRoomcontainer>
                         <h4>* IN QUEUE *</h4>
                         <LoadingImg />
-                        {/* <RoomIDInput
+                        <RoomIDInput
                             id="roomIDInput"
                             type="text"
                             placeholder="Room ID"
@@ -219,7 +216,7 @@ export function JoinRoom(props: any) {
                         <JoinRoomButton
                             type="submit"
                             onClick={sendRoomID}
-                        >Join</JoinRoomButton> */}
+                        >Join</JoinRoomButton>
                     </ JoinRoomcontainer>
                 </ContainerBaground>}
             </form>

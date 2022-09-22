@@ -3,47 +3,69 @@ import styled from "styled-components";
 import { socket } from "../..";
 
 const ScoreContainer = styled.div`
-    outline: none;
     display: flex;
     justify-content: center;
     align-items: center;
     align-content: center;
     width: 70%;
     margin: auto;
-    margin-top: .3rem;
-    padding: 0.5rem;
+    margin-top: .5rem;
+    padding: .4rem;
     background-color: #16213E;
     border-radius: 0.5rem;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: #000;
-    position: relative;
+    box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.5);
+    @font-face {
+        font-family: 'street';
+        src: url("Act_Of_Rejection.ttf") format("truetype");
+
+    }
 `;
 
 const ScoreContainerP1 = styled.div`
     outline: none;
     background-color: #02CEFC;
     color: #16213E;
-    font-size: 17px;
     border: 2px solid transparent;
     border-radius: .5rem;
-    padding: 4px 10px;
-    margin-right: 0.5em;
+    margin-right: 0.2rem;
     float : left;
     width: 100%;
+    font-size: 30px;
+    text-align: center;
+    font-family: 'street';
+    justify-content: center;
+    p {
+        font-size: 20px;
+        text-align: center;
+        font-family: 'street';
+        justify-content: center;
+    }
+    h1 {
+        margin: 0;
+    }
 `;
 const ScoreContainerP2 = styled.div`
     outline: none;
     background-color: #ED006C;
     color: #ffffff;
-    font-size: 17px;
+    font-size: 30px;
     border: 2px solid transparent;
     border-radius: .5rem;
-    padding: 4px 10px;
     float : right;
-    margin-left: 0.5em;
+    margin-left: 0.2em;
     width :100%;
+    text-align: center;
+    font-family: 'street';
+    justify-content: center;
+    p {
+        font-size: 20px;
+        text-align: center;
+        font-family: 'street';
+        justify-content: center;
+    }
+    h1 {
+        margin: 0;
+    }
 `;
 
 export let is_score: boolean = false;
@@ -85,11 +107,13 @@ export function JoinRoom(props: any) {
         <>
             <ScoreContainer>
                 <ScoreContainerP1>
-                    <p> Player 1: {p1Score}</p>
+                    <p> SENKO </p>
+                    <h1> {p1Score}</h1>
                 </ScoreContainerP1>
 
                 <ScoreContainerP2>
-                    <p> Player 2: {p2Score}</p>
+                    <p> PUNK </p>
+                    <h1> {p2Score} </h1>
                 </ScoreContainerP2>
             </ScoreContainer>
         </>

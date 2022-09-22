@@ -83,7 +83,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
           this.server.emit('player1_update', listOfPlayers.get(player[0]));
           this.server.emit('player2_update', listOfPlayers.get(player[1]));
             intervalid =  setInterval(() => {
-                this.handleBallMovement(listOfPlayers.get(player[0]), listOfPlayers.get(player[1]))}, 1000 / 55);
+                this.handleBallMovement(listOfPlayers.get(player[0]), listOfPlayers.get(player[1]))}, 1000 / 60);
           }
         else if (inroom.size === 1) {
           this.server.emit('WAITING_FOR_PLAYER');
