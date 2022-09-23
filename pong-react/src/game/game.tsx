@@ -126,16 +126,17 @@ function Game () {
         const render = () => {
             renderCanvas();
             renderPaddle();
+            animation_id = requestAnimationFrame(render);
             if (gameOn && newPlayer) {
                 initBall();
                 canvasRef.current!.focus();
             }
-            animation_id = requestAnimationFrame(render);
             socket.off('player1_won').on('player1_won', () => {
                 alert('Player 1 won!');
+                cancelAnimationFrame(animation_id);
             });
             socket.on('player2_won', () => {
-                
+                cancelAnimationFrame(animation_id);
             });
 
             // if (!newPlayer)

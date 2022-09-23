@@ -64,24 +64,24 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
         //this.server.emit('room_full');
       }
       else {
-        const player = Array.from(inroom.values());
-        if(i === 0) {
-        listOfPlayers.set(player[0], P1);
-        listOfPlayers.get(player[0]).room = data;
-        listOfPlayers.get(player[0]).id = client.id;
-        console.log('player1 ' , listOfPlayers.get(player[0]));
-      }
-      if (i === 1) {
-        listOfPlayers.set(player[1], P2);
-        listOfPlayers.get(player[1]).room = data;
-          listOfPlayers.get(player[1]).id = client.id;
+          const player = Array.from(inroom.values());
+          if(i === 0) {
+          listOfPlayers.set(player[0], P1);
+          listOfPlayers.get(player[0]).room = data;
+          listOfPlayers.get(player[0]).id = client.id;
+          console.log('player1 ' , listOfPlayers.get(player[0]));
+          i++;
+       }
+        if (i === 1) {
+          listOfPlayers.set(player[1], P2);
+          listOfPlayers.get(player[1]).room = data;
+            listOfPlayers.get(player[1]).id = client.id;
+          }
           i = 0;
-        }
-        i++;
         if (inroom.size === 2) {
-          this.server.emit('START_GAME');
-          this.server.emit('player1_update', listOfPlayers.get(player[0]));
-          this.server.emit('player2_update', listOfPlayers.get(player[1]));
+          this.server.to(data).emit('START_GAME');
+          this.server.to(data).emit('player1_update', listOfPlayers.get(player[0]));
+          this.server.to(data).emit('player2_update', listOfPlayers.get(player[1]));
             intervalid =  setInterval(() => {
                 this.handleBallMovement(listOfPlayers.get(player[0]), listOfPlayers.get(player[1]))}, 1000 / 60);
           }
@@ -99,6 +99,8 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
     console.log('Client disconnected ' + client.id);
     clearInterval(intervalid);
     this.server.emit('PlayerDisconnected');
+    P1.points = 0;
+    P2.points = 0;
   }
 
   // handle player movement 
