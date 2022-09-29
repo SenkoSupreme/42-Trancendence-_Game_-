@@ -1,0 +1,10 @@
+{
+    "name": "SENKO ENV",
+    "dockerFile": "Dockerfile",
+    "runArgs": ["-u", "node"],
+    "settings": {
+        "terminal.integrated.shell.linux": "/bin/bash",
+
+    },
+    "postCreateCommand": "npm install"
+}

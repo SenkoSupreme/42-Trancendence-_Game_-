@@ -4,15 +4,14 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { io } from 'socket.io-client';
-export const socket = io('0.0.0.0:3001'); //update this to mac pubic ip
+import Game from './game/game';
+
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 root.render(
-  
-    <App />
-
+  <App />
 );
 
 // If you want to start measuring performance in your app, pass a function

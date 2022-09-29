@@ -1,6 +1,7 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { socket } from "../..";
+import { socket } from "../../game/game";
 import background from "../assets/bg.jpeg";
 
 const ContainerBaground = styled.div`
@@ -150,14 +151,12 @@ const LoadingImg = styled.div`
     }
 }
 `;
-// LoadingImg.defaultProps = {
-//     src: loading,
-// };
+
 
 const JoinRoomButton = styled.button`
     outline: none;
-    background-color: #690759;
-    color: #ffffff;
+    background-color: transparent;
+    color: #ffd300;
     font-size: 17px;
     border: 2px solid transparent;
     border-radius: 5px;
@@ -166,10 +165,15 @@ const JoinRoomButton = styled.button`
     margin-top: 1em;
     margin-bottom: 12px;
     cursor: pointer;
+    font-family: 'street';
+    font-size: 25px;
+    border: 1px solid #02CEFC;
+    padding-bottom: 0;
+    margin-top: 0;
 
     &:hover {
         background-color: trasparent;
-        color: red;
+        color: #ED006C;
         border: 2px solid #690759;
         
     }
@@ -178,47 +182,24 @@ const JoinRoomButton = styled.button`
 
 
 export function JoinRoom(props: any) {
-    const [roomID, setRoomID] = useState("");
-    const [is_joined, setIsJoined] = useState(true);
-    const handleRoomIDChange = (e: React.ChangeEvent<any>) => {
-        const value = e.target.value;
-        setRoomID(value);
-        console.log(roomID);
 
-    }
+    const navigate = useNavigate();
+    const userCancelQueue= () => {
 
-
-    const sendRoomID = () => {
-        if (roomID.length > 0) {
-            socket.emit('join_game', roomID);
-            (document.getElementById("roomIDInput")! as HTMLInputElement).value = "";
-            setIsJoined(false);
-        }
-        else {
-            alert("Please enter a room ID");
-        }
+        socket.emit("cancelQueue");
+        navigate("/");
     }
 
     return (
         <>
             <form>
-                {is_joined && <ContainerBaground>
+                  <ContainerBaground>
                     <JoinRoomcontainer>
                         <h4>* IN QUEUE *</h4>
                         <LoadingImg />
-                        <RoomIDInput
-                            id="roomIDInput"
-                            type="text"
-                            placeholder="Room ID"
-                            value={roomID}
-                            onChange={handleRoomIDChange}
-                        />
-                        <JoinRoomButton
-                            type="submit"
-                            onClick={sendRoomID}
-                        >Join</JoinRoomButton>
+                        <JoinRoomButton onClick={userCancelQueue}>Cancel</JoinRoomButton>
                     </ JoinRoomcontainer>
-                </ContainerBaground>}
+                </ContainerBaground>
             </form>
         </>
     );

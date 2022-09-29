@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import styled from "styled-components";
-import { socket } from "../..";
+import { socket } from "../../game/game";
 
 const ScoreContainer = styled.div`
     display: flex;
@@ -40,7 +40,7 @@ const ScoreContainerP1 = styled.div`
         font-family: 'street';
         justify-content: center;
     }
-    h1 {
+    h2 {
         margin: 0;
     }
 `;
@@ -63,7 +63,7 @@ const ScoreContainerP2 = styled.div`
         font-family: 'street';
         justify-content: center;
     }
-    h1 {
+    h2 {
         margin: 0;
     }
 `;
@@ -108,12 +108,12 @@ export function JoinRoom(props: any) {
             <ScoreContainer>
                 <ScoreContainerP1>
                     <p> SENKO </p>
-                    <h1> {p1Score}</h1>
+                    <h2> {p1Score}</h2>
                 </ScoreContainerP1>
 
                 <ScoreContainerP2>
                     <p> PUNK </p>
-                    <h1> {p2Score} </h1>
+                    <h2> {p2Score} </h2>
                 </ScoreContainerP2>
             </ScoreContainer>
         </>

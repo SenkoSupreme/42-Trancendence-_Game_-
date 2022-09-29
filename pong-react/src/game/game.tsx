@@ -1,10 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
 import paddle from "./paddle";
 import { JoinRoom } from "./components/Joinroom";
-import { socket } from "..";
-import Score, {p1_points, p2_points } from "./components/score";
+import Score, { p1_points, p2_points } from "./components/score";
 import styled from "styled-components";
 import bg from "./assets/bg.jpeg";
+import { io, Socket } from "socket.io-client";
+export const socket = io('0.0.0.0:3001'); //update this to mac pubic ip
 
 const Container = styled.div`
     display: flex;
@@ -35,7 +36,7 @@ const Background = styled.div`
     background-position: center;
     background-size: cover;
     position: fixed;
-    opacity: 90%;
+    opacity: 98%;
     height: 100%;
     width: 100%;
     top: 0;
@@ -53,19 +54,18 @@ const Background = styled.div`
 `;
 
 
-function Game () {   
+function Game() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     let keypress: boolean = true;
     let newPlayer: boolean = false;
     let rightPaddle: any = {};
     let leftPaddle: any = {};
-    let animation_id:any;
+    let animation_id: any;
     let gameOn: boolean = false;
     const audio = new Audio('touch.wav');
-    
+
     useEffect(() => {
 
-        
         socket.off('START_GAME').on('START_GAME', () => {
             gameOn = true;
         });
@@ -73,7 +73,7 @@ function Game () {
         // socket.off('WAITING_FOR_PLAYER').on('WAITING_FOR_PLAYER', () => {
         //     newPlayer = false;
         // });
-        
+
         socket.off('player1_update').on('player1_update', data => {
             leftPaddle = data;
         });
@@ -81,24 +81,22 @@ function Game () {
             rightPaddle = data;
             newPlayer = true;
         });
-        socket.off('PlayerDisconnected').on('PlayerDisconnected', () =>
-        {
+        socket.off('PlayerDisconnected').on('PlayerDisconnected', () => {
             console.log('player2 out');
             newPlayer = false;
-            
+
         });
-        
+
         const renderCanvas = () => {
             const canvasBG = canvasRef.current;
             const ctxBG = canvasBG?.getContext('2d');
             const bg = new Image();
             bg.src = 'splash.png';
-            bg.onload = function()
-            {
+            bg.onload = function () {
                 ctxBG?.drawImage(bg, 0, 0, canvasBG!.width, canvasBG!.height);
             }
         }
-        
+
         const renderPaddle = () => {
             const paddleC = canvasRef.current;
             const ctx = paddleC?.getContext('2d');
@@ -122,7 +120,7 @@ function Game () {
             });
         }
 
-        
+
         const render = () => {
             renderCanvas();
             renderPaddle();
@@ -141,30 +139,29 @@ function Game () {
 
             // if (!newPlayer)
             // {
-                //     cancelAnimationFrame(animation_id);
-                // }
-            };
-            render();
-            // canvasRef.current?.focus();
+            //     cancelAnimationFrame(animation_id);
+            // }
+        };
+        render();
+        // canvasRef.current?.focus();
 
-            if (keypress) {
-                api_updates();
-            }
+        if (keypress) {
+            api_updates();
+        }
     }, [socket]);
-    
-    
+
+
     const keyboardevent = (e: React.KeyboardEvent<HTMLCanvasElement>) => {
         if (e.key === "ArrowUp") {
             socket.emit('arrow_keyUP');
             keypress = true;
-        } 
+        }
         else if (e.key === "ArrowDown") {
             socket.emit('arrow_keyDown');
             keypress = true;
         }
     }
-    function api_updates()
-    {
+    function api_updates() {
         socket.on('player_moved', data => {
             if (data.side === 'left') {
                 leftPaddle = data;
@@ -174,25 +171,25 @@ function Game () {
             }
         });
         keypress = false;
-        
+
     }
-    socket.on('play_sound', () => {
+    socket.off('play_sound').on('play_sound', () => {
         audio.play();
     });
     return (
         <>
-        <Background />
-        <JoinRoom/>
-        <Container>
-            <GameContainer id="game" ref={canvasRef}
-                tabIndex={0}
-                onKeyDown={keyboardevent}
-                width="1280" height="720">
-            </GameContainer>
-        <Score/>
-        </Container>
+            <Background />
+            {!newPlayer && <JoinRoom />}
+            <Container>
+                <GameContainer id="game" ref={canvasRef}
+                    tabIndex={0}
+                    onKeyDown={keyboardevent}
+                    width="1280" height="720">
+                </GameContainer>
+                <Score />
+            </Container>
         </>
-            );
-    }
+    );
+}
 export default Game;
 
