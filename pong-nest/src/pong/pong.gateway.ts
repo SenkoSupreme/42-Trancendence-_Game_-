@@ -116,14 +116,23 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 	//QUEUE
 	@SubscribeMessage('join_game')
 	handleJoinGame(client: Socket) {
-		const roomID = (queue[i] + "+" + "gameRoom").toString();
-		client.join(roomID);
-		listOfPlayers.get(i).room = roomID;
-		console.log('QUEUE ' + roomID);
-		console.log(listOfPlayers.get(i));
-		console.log("----------------------");
+		if (i % 2 !== 0) {	
+			const roomID = (queue[i] + "+" + "gameRoom").toString();
+			client.join(roomID);
+			listOfPlayers.get(i).room = roomID;
+			console.log('QUEUE ' + roomID);
+			console.log(listOfPlayers.get(i));
+			console.log("----------------------");
+		}
+		else if (i % 2 === 0) {
+			const roomID = (queue[i - 1] + "+" + "gameRoom").toString();
+			client.join(roomID);
+			listOfPlayers.get(i).room = roomID;
+			console.log(listOfPlayers.get(i));
+			this.server.to(roomID).emit('START_GAME');
+		}
 
-		//client.to(roomID[0]).emit('START_GAME');
+
 	}
 
 //----------------------------------------------------------------------------

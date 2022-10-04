@@ -61,13 +61,17 @@ function Game() {
     let rightPaddle: any = {};
     let leftPaddle: any = {};
     let animation_id: any;
-    let gameOn: boolean = false;
+    // let gameOn: boolean = false;
+    const [gameOn, setGameOn] = useState(false);
     const audio = new Audio('touch.wav');
 
     useEffect(() => {
 
         socket.off('START_GAME').on('START_GAME', () => {
-            gameOn = true;
+            // gameOn = true;
+            setGameOn(true);
+            console.log('game started');
+            
         });
 
         // socket.off('WAITING_FOR_PLAYER').on('WAITING_FOR_PLAYER', () => {
@@ -125,7 +129,7 @@ function Game() {
             renderCanvas();
             renderPaddle();
             animation_id = requestAnimationFrame(render);
-            if (gameOn && newPlayer) {
+            if (gameOn) {
                 initBall();
                 canvasRef.current!.focus();
             }
@@ -179,7 +183,7 @@ function Game() {
     return (
         <>
             <Background />
-            {!newPlayer && <JoinRoom />}
+            {!gameOn && <JoinRoom />}
             <Container>
                 <GameContainer id="game" ref={canvasRef}
                     tabIndex={0}
