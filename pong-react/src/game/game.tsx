@@ -5,7 +5,7 @@ import Score, { p1_points, p2_points } from "./components/score";
 import styled from "styled-components";
 import bg from "./assets/bg.jpeg";
 import { io, Socket } from "socket.io-client";
-export const socket = io('0.0.0.0:3001'); //update this to mac pubic ip
+export const socket = io('10.11.6.4:3001'); //update this to mac pubic ip
 
 const Container = styled.div`
     display: flex;
@@ -84,6 +84,8 @@ function Game() {
         socket.off('player2_update').on('player2_update', data => {
             rightPaddle = data;
             newPlayer = true;
+            console.log(newPlayer);
+            
         });
         socket.off('PlayerDisconnected').on('PlayerDisconnected', () => {
             console.log('player2 out');
