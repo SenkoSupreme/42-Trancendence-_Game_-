@@ -5,7 +5,7 @@ import Score, { p1_points, p2_points } from "./components/score";
 import styled from "styled-components";
 import bg from "./assets/bg.jpeg";
 import { io, Socket } from "socket.io-client";
-export const socket = io('10.11.6.4:3001'); //update this to mac pubic ip
+export const socket = io('0.0.0.0:3001'); //update this to mac pubic ip
 
 const Container = styled.div`
     display: flex;
@@ -68,9 +68,11 @@ function Game() {
     useEffect(() => {
 
         socket.off('START_GAME').on('START_GAME', () => {
-            // gameOn = true;
+        // socket.on('START_GAME', () => {
+            newPlayer = true;
             setGameOn(true);
             console.log('game started');
+            console.log(gameOn);
             
         });
 
@@ -83,7 +85,6 @@ function Game() {
         });
         socket.off('player2_update').on('player2_update', data => {
             rightPaddle = data;
-            newPlayer = true;
             console.log(newPlayer);
             
         });
@@ -113,7 +114,7 @@ function Game() {
         }
 
         const initBall = () => {
-            socket.off('ball_update').on('ball_update', data => {
+            socket.on('ball_update', data => {
                 const ballC = canvasRef.current;
                 const ctx = ballC?.getContext('2d');
                 ctx?.beginPath();
@@ -131,9 +132,8 @@ function Game() {
             renderCanvas();
             renderPaddle();
             animation_id = requestAnimationFrame(render);
-            if (gameOn) {
-                initBall();
-                canvasRef.current!.focus();
+            if (newPlayer === true) {
+                initBall(); 
             }
             socket.off('player1_won').on('player1_won', () => {
                 alert('Player 1 won!');
@@ -142,6 +142,7 @@ function Game() {
             socket.on('player2_won', () => {
                 cancelAnimationFrame(animation_id);
             });
+            canvasRef.current!.focus();
 
             // if (!newPlayer)
             // {
