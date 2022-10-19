@@ -5,7 +5,12 @@ import Score, { p1_points, p2_points } from "./components/score";
 import styled from "styled-components";
 import bg from "./assets/bg.jpeg";
 import { io, Socket } from "socket.io-client";
-export const socket = io('0.0.0.0:3001'); //update this to mac pubic ip
+import { render } from "@testing-library/react";
+export const socket = io('10.11.5.5:3001', {
+    query: {
+        userLogin: 'mougnou',
+    }
+}); //update this to mac pubic ip
 
 const Container = styled.div`
     display: flex;
@@ -64,7 +69,9 @@ function Game() {
     // let gameOn: boolean = false;
     const [gameOn, setGameOn] = useState(false);
     const audio = new Audio('touch.wav');
-
+    
+    
+    
     useEffect(() => {
 
         socket.off('START_GAME').on('START_GAME', () => {
@@ -114,43 +121,46 @@ function Game() {
         }
 
         const initBall = () => {
-            socket.on('ball_update', data => {
-                const ballC = canvasRef.current;
-                const ctx = ballC?.getContext('2d');
-                ctx?.beginPath();
-                ctx?.arc(data.x, data.y, data.rad, 0, Math.PI * 2, false);
-                ctx!.fillStyle = '#ffffff';
-                ctx!.strokeStyle = '#000000';
-                ctx?.fill();
-                ctx?.stroke();
-                ctx?.closePath();
-            });
+            if (newPlayer) {
+                socket.off('ball_update').on('ball_update', data => {
+                    const ballC = canvasRef.current;
+                    const ctx = ballC?.getContext('2d');
+                    ctx?.beginPath();
+                    ctx?.arc(data.x, data.y, data.rad, 0, Math.PI * 2, false);
+                    ctx!.fillStyle = '#ffffff';
+                    ctx!.strokeStyle = '#000000';
+                    ctx?.fill();
+                    ctx?.stroke();
+                    ctx?.closePath();
+                });
+            }
         }
-
-
+        
         const render = () => {
+            
             renderCanvas();
             renderPaddle();
-            animation_id = requestAnimationFrame(render);
-            if (newPlayer === true) {
-                initBall(); 
+            if (newPlayer) {
+                    initBall(); 
             }
             socket.off('player1_won').on('player1_won', () => {
-                alert('Player 1 won!');
-                cancelAnimationFrame(animation_id);
-            });
-            socket.on('player2_won', () => {
-                cancelAnimationFrame(animation_id);
-            });
-            canvasRef.current!.focus();
-
-            // if (!newPlayer)
-            // {
-            //     cancelAnimationFrame(animation_id);
-            // }
-        };
-        render();
-        // canvasRef.current?.focus();
+                    alert('Player 1 won!');
+                    cancelAnimationFrame(animation_id);
+                });
+                socket.off('player2_won').on('player2_won', () => {
+                    alert('Player 2 won!');
+                    cancelAnimationFrame(animation_id);
+                });
+                canvasRef.current!.focus();
+                // if (!newPlayer)
+                // {
+                //     cancelAnimationFrame(animation_id);
+                // }
+                animation_id = requestAnimationFrame(render);
+            };
+            requestAnimationFrame(render);
+            render();
+            // canvasRef.current?.focus();
 
         if (keypress) {
             api_updates();

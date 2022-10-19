@@ -36,8 +36,8 @@ const P2 = {
 const BALL = {
 	x: 640,
 	y: 350,
-	dx: 8,
-	dy: 8,
+	dx: 4,
+	dy: 4,
 	rad: 10,
 	speed: 10,
 };
@@ -52,9 +52,9 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 	@WebSocketServer()
 	server: Server;
 
-
 	handleConnection(client: Socket) {
 		console.log(`Client connected + ${client.id}`);
+		// console.log(client.handshake.query);
 		// client.on('join_game', data => {
 		//   //client.to(data).emit('joined_game', data);
 		//   client.join(data);
@@ -107,6 +107,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		P1.points = 0;
 		P2.points = 0;
 		clearInterval(intervalid);
+		intervalid = null;
 	}
 
 	//QUEUE
@@ -122,9 +123,6 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 			client.join(roomID);
 			listOfPlayers.get(i).room = roomID;
 			this.server.to(roomID).emit('player1_update', listOfPlayers.get(i));
-			console.log('QUEUE ' + roomID);
-			console.log(listOfPlayers.get(i));
-			console.log("----------------------");
 		}
 		else if (i % 2 === 0) {
 			const roomID = (queue[i - 1] + "+" + "gameRoom").toString();
@@ -132,14 +130,13 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 			listOfPlayers.set(i, P2);
 			listOfPlayers.get(i).id = client.id;
 			listOfPlayers.get(i).room = roomID;
-			console.log(listOfPlayers.get(i));
 			this.server.to(roomID).emit('player2_update', listOfPlayers.get(i));
 			this.server.to(roomID).emit('START_GAME');
 			intervalid = setInterval(() => {
 				this.handleBallMovement(listOfPlayers.get(i - 1), listOfPlayers.get(i));
-			}, 1000 / 35);
+			}, 1000 / 60);
 		}
-
+			//delete player from queue if cancelled
 
 	}
 
@@ -156,16 +153,16 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 			let id:number;
 			for (id of listOfPlayers.keys()) {
 				if (listOfPlayers.get(id).id === client.id) {
-					console.log('player ' + id + ' moved up');
-					
 					break;
 				}
 				else{
 					continue;
 				}
 			}
-			listOfPlayers.get(id).y -= 40;
-			this.server.to(listOfPlayers.get(id).room).emit('player_moved', listOfPlayers.get(id));
+			if (listOfPlayers.get(id).y > 0) {
+				listOfPlayers.get(id).y -= 40;
+				this.server.to(listOfPlayers.get(id).room).emit('player_moved', listOfPlayers.get(id));
+			}
 	}
 
 	@SubscribeMessage('arrow_keyDown')
@@ -173,15 +170,16 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		let id:number;
 		for (id of listOfPlayers.keys()) {
 			if (listOfPlayers.get(id).id === client.id) {
-				console.log('player ' + id + ' moved down');
 				break;
 			}
 			else {
 				continue;
 			}
 		}
-		listOfPlayers.get(id).y += 40;
-		this.server.to(listOfPlayers.get(id).room).emit('player_moved', listOfPlayers.get(id));
+		if (listOfPlayers.get(id).y < 620) {
+			listOfPlayers.get(id).y += 40;
+			this.server.to(listOfPlayers.get(id).room).emit('player_moved', listOfPlayers.get(id));
+		}
 	}
 
 // END  OF  TO  BE   FIXED
@@ -210,45 +208,40 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 			if (player2.side === 'right') {
 				player2.points = player2.points + 1;
 				this.server.to(player2.room).emit('player2_scored', player2.points);
-				console.log("Player 2 scored", player2.points, player2.side);
 				if (player2.points === 10) {
 					this.server.to(player2.room).emit('player2_won');
 					//send player points here
 					player2.points = 0;
-					console.log("Player 2 won");
 					clearInterval(intervalid);
 				}
 			}
 			BALL.x = 640;
 			BALL.y = 350;
-			BALL.dx = -8;
-			BALL.dy = -8;
+			BALL.dx = -4;
+			BALL.dy = -4;
 			//update score here
 		}
 		else if (BALL.x + BALL.rad > 1280) {
 			if (player1.side === 'left') {
 				player1.points = player1.points + 1;
 				this.server.to(player1.room).emit('player1_scored', player1.points);
-				console.log("Player 1 scored", player1.points, player1.side);
 				if (player1.points === 10) {
 					this.server.to(player1.room).emit('player1_won');
 					//send player points here
 					player1.points = 0;
-					console.log("Player 1 won");
 					clearInterval(intervalid);
 				}
 			}
 			BALL.x = 640;
 			BALL.y = 350;
-			BALL.dx = 8;
-			BALL.dy = 8;
+			BALL.dx = 4;
+			BALL.dy = 4;
 			//update score here
 		}
 
 		if ((collision(player1, BALL) && BALL.dx < 0)
 			&& player1.side == 'left') {
 			BALL.dx = -BALL.dx;
-			console.log('collision P1');
 			this.server.to(player1.room).emit('play_sound');
 		}
 
@@ -256,7 +249,6 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 			&& player2.side == 'right')
 		) {
 			BALL.dx = -BALL.dx;
-			console.log('collision P2');
 			this.server.to(player2.room).emit('play_sound');
 
 		}
@@ -266,7 +258,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		BALL.y += BALL.dy;
 		// console.log(BALL);
 		
-		this.server.to(player2.room).emit('ball_update', BALL);
+		this.server.to(player1.room).emit('ball_update', BALL);
 	}
 
 }
