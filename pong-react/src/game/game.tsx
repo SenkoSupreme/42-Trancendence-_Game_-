@@ -89,6 +89,8 @@ function Game() {
 
         socket.off('player1_update').on('player1_update', data => {
             leftPaddle = data;
+            console.log(leftPaddle);
+            
         });
         socket.off('player2_update').on('player2_update', data => {
             rightPaddle = data;
@@ -143,14 +145,14 @@ function Game() {
             if (newPlayer) {
                     initBall(); 
             }
-            socket.off('player1_won').on('player1_won', () => {
-                    alert('Player 1 won!');
-                    cancelAnimationFrame(animation_id);
-                });
-                socket.off('player2_won').on('player2_won', () => {
-                    alert('Player 2 won!');
-                    cancelAnimationFrame(animation_id);
-                });
+            // socket.off('player1_won').on('player1_won', () => {
+            //         alert('Player 1 won!');
+            //         cancelAnimationFrame(animation_id);
+            //     });
+            //     socket.off('player2_won').on('player2_won', () => {
+            //         alert('Player 2 won!');
+            //         cancelAnimationFrame(animation_id);
+            //     });
                 canvasRef.current!.focus();
                 // if (!newPlayer)
                 // {
