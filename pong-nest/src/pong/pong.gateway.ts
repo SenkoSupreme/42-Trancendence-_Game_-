@@ -35,6 +35,7 @@ class P2 {
 };
 
 class BALL {
+	id = 0;
 	x = 640;
 	y = 350;
 	dx = 4;
@@ -46,6 +47,8 @@ class BALL {
 const listOfPlayers: Map<number, any> = new Map();
 let intervalid;
 let i = 0;
+
+const ballOfRoom: Map<string, any> = new Map();
 const queue = Array<string>;
 
 @WebSocketGateway({ cors: true })
@@ -113,11 +116,10 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 	@SubscribeMessage('join_game')
 	handleJoinGame(client: Socket) {
 		i++;
-		
 		listOfPlayers.set(i, new P1);
 		listOfPlayers.get(i).id = client.id;
 		queue[i] = listOfPlayers.get(i).id;
-		
+
 		if (i % 2 !== 0) {
 			const roomID = (queue[i] + "+" + "gameRoom").toString();
 			listOfPlayers.get(i).room = roomID;
@@ -132,47 +134,42 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 			client.join(roomID);
 			this.server.to(roomID).emit('player2_update', listOfPlayers.get(i));
 			this.server.to(roomID).emit('START_GAME');
-			const ball_instance = new BALL;
-			intervalid = setInterval(() => {
-				this.handleBallMovement(listOfPlayers.get(i - 1), listOfPlayers.get(i), ball_instance);
-			}, 1000 / 60);
+			ballOfRoom.set(roomID, new BALL);
+			ballOfRoom.get(roomID).id = roomID;
+			console.log(ballOfRoom.get(roomID).id);
+			this.handleBallMovement(listOfPlayers.get(i - 1), listOfPlayers.get(i), ballOfRoom.get(roomID));
 		}
-		// console.table(listOfPlayers.get(i).room);
-		// console.table(listOfPlayers);
-		
-		
-			//delete player from queue if cancelled
-
+		//delete player from queue if cancelled
 	}
 
 	//----------------------------------------------------------------------------
-//fixed
-// TO  BE   FIXED 
-//   if (listOfPlayers.get(client.id).y < 620) {
-//     listOfPlayers.get(client.id).y += 40;
-//     this.server.to(listOfPlayers.get(client.id).room).emit('player_moved', listOfPlayers.get(client.id));
-//   }
+	//fixed
+	// TO  BE   FIXED 
+	//   if (listOfPlayers.get(client.id).y < 620) {
+	//     listOfPlayers.get(client.id).y += 40;
+	//     this.server.to(listOfPlayers.get(client.id).room).emit('player_moved', listOfPlayers.get(client.id));
+	//   }
 	// handle player movement 
 	@SubscribeMessage('arrow_keyUP')
 	handleArrowKeyUP(client: Socket) {
-			let id:number;
-			for (id of listOfPlayers.keys()) {
-				if (listOfPlayers.get(id).id === client.id) {
-					break;
-				}
-				else {
-					continue;
-				}
+		let id: number;
+		for (id of listOfPlayers.keys()) {
+			if (listOfPlayers.get(id).id === client.id) {
+				break;
 			}
-			if (listOfPlayers.get(id).y > 0) {
-				listOfPlayers.get(id).y -= 40;
-				this.server.to(listOfPlayers.get(id).room).emit('player_moved', listOfPlayers.get(id));
+			else {
+				continue;
 			}
+		}
+		if (listOfPlayers.get(id).y > 0) {
+			listOfPlayers.get(id).y -= 40;
+			this.server.to(listOfPlayers.get(id).room).emit('player_moved', listOfPlayers.get(id));
+		}
 	}
 
 	@SubscribeMessage('arrow_keyDown')
 	handleArrowKeyDown(client: Socket) {
-		let id:number;
+		let id: number;
 		for (id of listOfPlayers.keys()) {
 			if (listOfPlayers.get(id).id === client.id) {
 				break;
@@ -188,8 +185,8 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		}
 	}
 
-// END  OF  TO  BE   FIXED
-//----------------------------------------------------------------------------
+	// END  OF  TO  BE   FIXED
+	//----------------------------------------------------------------------------
 
 	handleBallMovement(player1: any, player2: any, ball_ins: any) {
 
@@ -207,64 +204,70 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 			}
 		}
 
-		if (ball_ins.y < 0 || ball_ins.y + ball_ins.rad > 720) {
-			ball_ins.dy = -ball_ins.dy;
-		}
-		if (ball_ins.x < 0) {
-			if (player2.side === 'right') {
-				player2.points = player2.points + 1;
-				this.server.to(player2.room).emit('player2_scored', player2.points);
-				if (player2.points === 10) {
-					this.server.to(player2.room).emit('player2_won');
-					//send player points here
-					player2.points = 0;
-					clearInterval(intervalid);
-				}
+		intervalid = setInterval(() => {
+
+		if (player1.room === ball_ins.id) {
+			if (ball_ins.y < 0 || ball_ins.y + ball_ins.rad > 720) {
+				ball_ins.dy = -ball_ins.dy;
 			}
-			ball_ins.x = 640;
-			ball_ins.y = 350;
-			ball_ins.dx = -4;
-			ball_ins.dy = -4;
-			//update score here
-		}
-		else if (ball_ins.x + ball_ins.rad > 1280) {
-			if (player1.side === 'left') {
-				player1.points = player1.points + 1;
-				this.server.to(player1.room).emit('player1_scored', player1.points);
-				if (player1.points === 10) {
-					this.server.to(player1.room).emit('player1_won');
-					//send player points here
-					player1.points = 0;
-					clearInterval(intervalid);
+			if (ball_ins.x < 0) {
+				if (player2.side === 'right') {
+					player2.points = player2.points + 1;
+					this.server.to(player2.room).emit('player2_scored', player2.points);
+					if (player2.points === 10) {
+						this.server.to(player2.room).emit('player2_won');
+						//send player points here
+						player2.points = 0;
+						clearInterval(intervalid);
+					}
 				}
+				ball_ins.x = 640;
+				ball_ins.y = 350;
+				ball_ins.dx = -4;
+				ball_ins.dy = -4;
+				//update score here
 			}
-			ball_ins.x = 640;
-			ball_ins.y = 350;
-			ball_ins.dx = 4;
-			ball_ins.dy = 4;
-			//update score here
-		}
+			else if (ball_ins.x + ball_ins.rad > 1280) {
+				if (player1.side === 'left') {
+					player1.points = player1.points + 1;
+					this.server.to(player1.room).emit('player1_scored', player1.points);
+					if (player1.points === 10) {
+						this.server.to(player1.room).emit('player1_won');
+						//send player points here
+						player1.points = 0;
+						clearInterval(intervalid);
+					}
+				}
+				ball_ins.x = 640;
+				ball_ins.y = 350;
+				ball_ins.dx = 4;
+				ball_ins.dy = 4;
+				//update score here
+			}
 
-		if ((collision(player1, ball_ins) && ball_ins.dx < 0)
-			&& player1.side == 'left') {
-			ball_ins.dx = -ball_ins.dx;
-			this.server.to(player1.room).emit('play_sound');
-		}
+			if ((collision(player1, ball_ins) && ball_ins.dx < 0)
+				&& player1.side == 'left') {
+				ball_ins.dx = -ball_ins.dx;
+				this.server.to(player1.room).emit('play_sound');
+			}
 
-		if ((collision(player2, ball_ins) && ball_ins.dx > 0
-			&& player2.side == 'right')
-		) {
-			ball_ins.dx = -ball_ins.dx;
-			this.server.to(player2.room).emit('play_sound');
+			if ((collision(player2, ball_ins) && ball_ins.dx > 0
+				&& player2.side == 'right')
+			) {
+				ball_ins.dx = -ball_ins.dx;
+				this.server.to(player2.room).emit('play_sound');
 
-		}
+			}
 
 
-		ball_ins.x += ball_ins.dx;
-		ball_ins.y += ball_ins.dy;
-		// console.log(ball_ins);
-		
-		this.server.to(player1.room).emit('ball_update', ball_ins);
+			ball_ins.x += ball_ins.dx;
+			ball_ins.y += ball_ins.dy;
+			// console.log(ball_ins);
+
+				this.server.sockets.to(player1.room).emit('ball_update', ball_ins);
+
+			}
+		}, 1000 / 60);
 		/*
 		Ball emits exclusivly to player room
 		Lost when another room is created - logic cuz its for just one room.
