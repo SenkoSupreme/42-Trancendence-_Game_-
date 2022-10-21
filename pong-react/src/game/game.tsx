@@ -99,7 +99,7 @@ function Game() {
         });
         socket.off('PlayerDisconnected').on('PlayerDisconnected', () => {
             console.log('player2 out');
-            newPlayer = false;
+            // newPlayer = false;
 
         });
 

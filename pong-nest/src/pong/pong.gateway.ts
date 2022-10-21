@@ -38,8 +38,8 @@ class BALL {
 	id = 0;
 	x = 640;
 	y = 350;
-	dx = 4;
-	dy = 4;
+	dx = 7;
+	dy = 7;
 	rad = 10;
 	speed = 10;
 };
@@ -58,48 +58,6 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
 	handleConnection(client: Socket) {
 		console.log(`Client connected + ${client.id}`);
-		// console.log(client.handshake.query);
-		// client.on('join_game', data => {
-		//   //client.to(data).emit('joined_game', data);
-		//   client.join(data);
-		//   console.log('joined game ' + data);`
-		//   const inroom = this.server.sockets.adapter.rooms.get(data);
-
-
-		//   if (inroom.size > 2) {
-		//     console.log('room full');
-		//     //this.server.emit('room_full');
-		//   }
-		//   else {
-		//       const player = Array.from(inroom.values());
-		//       if(i === 0) {
-		//       listOfPlayers.set(player[0], P1);
-		//       listOfPlayers.get(player[0]).room = data;
-		//       listOfPlayers.get(player[0]).id = client.id;
-		//       console.log('player1 ' , listOfPlayers.get(player[0]));
-		//       i++;
-		//    }
-		//     if (i === 1) {
-		//       listOfPlayers.set(player[1], P2);
-		//       listOfPlayers.get(player[1]).room = data;
-		//         listOfPlayers.get(player[1]).id = client.id;
-		//       }
-		//       i = 0;
-		//     if (inroom.size === 2) {
-		//       this.server.to(data).emit('START_GAME');
-		//       this.server.to(data).emit('player1_update', listOfPlayers.get(player[0]));
-		//       this.server.to(data).emit('player2_update', listOfPlayers.get(player[1]));
-		//         intervalid =  setInterval(() => {
-		//             this.handleBallMovement(listOfPlayers.get(player[0]), listOfPlayers.get(player[1]))}, 1000 / 80);
-		//       }
-		//     else if (inroom.size === 1) {
-		//       this.server.emit('WAITING_FOR_PLAYER');
-		//       clearInterval(intervalid);
-		//       if (player[0]) listOfPlayers.set(player[0], P1);
-		//       if(player[1]) listOfPlayers.set(player[1], P2);
-		//     }
-		//   }
-		// });
 	}
 
 	handleDisconnect(client: Socket) {
@@ -124,7 +82,6 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 			const roomID = (queue[i] + "+" + "gameRoom").toString();
 			listOfPlayers.get(i).room = roomID;
 			client.join(roomID);
-			this.server.to(roomID).emit('player1_update', listOfPlayers.get(i));
 		}
 		else if (i % 2 === 0) {
 			const roomID = (queue[i - 1] + "+" + "gameRoom").toString();
@@ -132,6 +89,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 			listOfPlayers.get(i).id = client.id;
 			listOfPlayers.get(i).room = roomID;
 			client.join(roomID);
+			this.server.to(roomID).emit('player1_update', listOfPlayers.get(i  - 1));
 			this.server.to(roomID).emit('player2_update', listOfPlayers.get(i));
 			this.server.to(roomID).emit('START_GAME');
 			ballOfRoom.set(roomID, new BALL);
@@ -142,13 +100,23 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		//delete player from queue if cancelled
 	}
 
-	//----------------------------------------------------------------------------
-	//fixed
-	// TO  BE   FIXED 
-	//   if (listOfPlayers.get(client.id).y < 620) {
-	//     listOfPlayers.get(client.id).y += 40;
-	//     this.server.to(listOfPlayers.get(client.id).room).emit('player_moved', listOfPlayers.get(client.id));
-	//   }
+	//Cancel Queue
+	@SubscribeMessage('cancelQueue')
+	handleCancelQueue(client: Socket) {
+		let id: number;
+		for (id of listOfPlayers.keys()) {
+			if (listOfPlayers.get(id).id === client.id) {
+				break;
+			}
+			else {
+				continue;
+			}
+		}
+		listOfPlayers.delete(id);
+		i--;
+	}
+
+	
 	// handle player movement 
 	@SubscribeMessage('arrow_keyUP')
 	handleArrowKeyUP(client: Socket) {
@@ -180,13 +148,9 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		}
 		if (listOfPlayers.get(id).y < 620) {
 			listOfPlayers.get(id).y += 40;
-			console.log(listOfPlayers.get(id).room);
 			this.server.to(listOfPlayers.get(id).room).emit('player_moved', listOfPlayers.get(id));
 		}
 	}
-
-	// END  OF  TO  BE   FIXED
-	//----------------------------------------------------------------------------
 
 	handleBallMovement(player1: any, player2: any, ball_ins: any) {
 
@@ -223,8 +187,8 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 				}
 				ball_ins.x = 640;
 				ball_ins.y = 350;
-				ball_ins.dx = -4;
-				ball_ins.dy = -4;
+				ball_ins.dx = -7;
+				ball_ins.dy = -7;
 				//update score here
 			}
 			else if (ball_ins.x + ball_ins.rad > 1280) {
@@ -240,8 +204,8 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 				}
 				ball_ins.x = 640;
 				ball_ins.y = 350;
-				ball_ins.dx = 4;
-				ball_ins.dy = 4;
+				ball_ins.dx = 7;
+				ball_ins.dy = 7;
 				//update score here
 			}
 
@@ -268,15 +232,6 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
 			}
 		}, 1000 / 60);
-		/*
-		Ball emits exclusivly to player room
-		Lost when another room is created - logic cuz its for just one room.
-		Need to separate balls for each room.
-
-		update :
-		   --- there can be new balls created for each room
-		   BUUUUT all balls appear in the same room lol
-		*/
 	}
 
 }
