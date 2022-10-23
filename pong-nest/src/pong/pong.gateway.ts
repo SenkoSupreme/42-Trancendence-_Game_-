@@ -33,7 +33,6 @@ class P2 {
 	points = 0;
 	room = "";
 };
-
 class BALL {
 	id = 0;
 	x = 640;
@@ -62,9 +61,22 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
 	handleDisconnect(client: Socket) {
 		console.log('Client disconnected ' + client.id);
-		listOfPlayers.delete(i);
-		console.clear();
+		let id: number;
+		for (id of listOfPlayers.keys()) {
+			if (listOfPlayers.get(id).id === client.id) {
+				break;
+			}
+			else {
+				continue;
+			}
+		}		
+		// if (listOfPlayers.get(id).room !== "")
+		// {
+		// 	client.leave(listOfPlayers.get(id).room);
+		// }
+		listOfPlayers.delete(id);
 		i--;
+		console.clear();
 		this.server.emit('PlayerDisconnected');
 		clearInterval(intervalid);
 		intervalid = null;
@@ -97,7 +109,6 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 			console.log(ballOfRoom.get(roomID).id);
 			this.handleBallMovement(listOfPlayers.get(i - 1), listOfPlayers.get(i), ballOfRoom.get(roomID));
 		}
-		//delete player from queue if cancelled
 	}
 
 	//Cancel Queue
@@ -182,7 +193,6 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 						this.server.to(player2.room).emit('player2_won');
 						//send player points here
 						player2.points = 0;
-						clearInterval(intervalid);
 					}
 				}
 				ball_ins.x = 640;
@@ -199,7 +209,6 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect {
 						this.server.to(player1.room).emit('player1_won');
 						//send player points here
 						player1.points = 0;
-						clearInterval(intervalid);
 					}
 				}
 				ball_ins.x = 640;

@@ -6,7 +6,7 @@ import styled from "styled-components";
 import bg from "./assets/bg.jpeg";
 import { io, Socket } from "socket.io-client";
 import { render } from "@testing-library/react";
-export const socket = io('10.11.5.5:3001', {
+export const socket = io('0.0.0.0:3001', {
     query: {
         userLogin: 'mougnou',
     }
@@ -162,7 +162,7 @@ function Game() {
             };
             requestAnimationFrame(render);
             render();
-            // canvasRef.current?.focus();
+            canvasRef.current?.focus();
 
         if (keypress) {
             api_updates();
