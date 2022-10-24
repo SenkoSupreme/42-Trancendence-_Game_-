@@ -16,7 +16,18 @@ const Container = styled.div`
     @font-face {
         font-family: 'street';
         src: url("Act_Of_Rejection.ttf") format("truetype");
-
+        
+    }
+    @font-face {
+        font-family: 'spoopy';
+        src: url("SpoopyGhostPixel.ttf") format("truetype");
+        font-size: 1.3rem;
+    }
+    form {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
     }
 `;
 
@@ -57,12 +68,33 @@ const JoinRoomButton = styled.button`
     font-family: 'street';
     font-size: 50px;
     padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0.5em;
 
     &:hover {
         background-color: #ED006C;
         color: #ffd300;
         border: 2px solid #02CEFC;
         
+    }
+    p {
+        font-size: 20px;
+        margin: 0;
+        font-family: 'spoopy';
+        animation: blink 1.5s steps(3, start) infinite;
+        padding-top: 10px;
+        background: radial-gradient(circle at top right, #ffd300, #B9FDD5, #ffd300);
+        -webkit-background-clip: text;
+	    -webkit-text-fill-color: transparent;
+        font-family: 'spoopy';
+        @keyframes blink {
+            to {
+                visibility: hidden;
+            }
+        }
     }
 
 `;
@@ -75,6 +107,10 @@ function Home() {
         socket.emit('join_game');
         console.log("join game");
     }
+    
+    const singlePmode = () => {
+        navigate('/vbot');
+    }
 
 
 
@@ -86,6 +122,13 @@ function Home() {
                     type="submit"
                     onClick={playGame}
                 >PLAY
+                <p>PvP</p>
+                </JoinRoomButton>
+                <JoinRoomButton
+                    type="submit"
+                    onClick={singlePmode}
+                    >PLAY
+                    <p>PvAI</p>
                 </JoinRoomButton>
             </form>
         </Container>
